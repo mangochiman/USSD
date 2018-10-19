@@ -1,5 +1,7 @@
 require "AfricasTalking"
 class UssdController < ApplicationController
+  protect_from_forgery with: :null_session
+  
   def ussd
     username = 'sandbox' # use 'sandbox' for development in the test environment
     api_key 	= '8a9199bf903a9cb57b3d9e39f9a937de683b531bcce1a346b332ee617e26002e' # use your sandbox app API key for development in the test environment
