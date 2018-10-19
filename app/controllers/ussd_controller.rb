@@ -47,7 +47,8 @@ class UssdController < ApplicationController
       #return response
 
     end
-    puts response
+    
+    render response.to_s
   end
 
 end
