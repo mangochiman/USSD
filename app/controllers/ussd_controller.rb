@@ -47,6 +47,7 @@ class UssdController < ApplicationController
       #return response
 
     end
+    puts response
   end
 
 end
