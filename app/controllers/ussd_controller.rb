@@ -26,7 +26,7 @@ class UssdController < ApplicationController
 
       #Business logic for first level response
       #This is a terminal request. Note how we start the response with END
-      $response = "END Your phone number is #{phone_number}";
+      response = "END Your phone number is #{phone_number}";
 
     elsif (text == "1*1")
 
