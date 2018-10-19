@@ -44,7 +44,7 @@ class UssdController < ApplicationController
 
       #Print the response onto the page so that our gateway can read it
       #header('Content-type: text/plain');
-      puts response;
+      #return response
 
     end
   end
