@@ -48,7 +48,7 @@ class UssdController < ApplicationController
 
     end
     
-    render response.to_s
+    render :text => response
   end
 
 end
