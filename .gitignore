@@ -1,14 +1,7 @@
 .DS_Store
 *.swp
 *.swo
-config/database.yml
-config/email.yml
-config/application.yml
-config/settings.yml
-config/couchdb.yml
-notes
-development.sql
-development_structure.sql
+*.lock
 schema.rb
 *~
 mockups
@@ -18,9 +11,4 @@ Gemfile.lock
 log/*
 .idea/*
 .ruby-version
-public/touchscreentoolkit/*
-db/flat_tables_init_output/backup/*.sql
-db/flat_tables_init_output/*.sql
-vendor/plugins/htn/*
 config/*.yml
-public/data/disaggregated_cohort/*
