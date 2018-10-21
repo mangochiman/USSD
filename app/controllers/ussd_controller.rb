@@ -11,41 +11,54 @@ class UssdController < ApplicationController
     phone_number = params["phoneNumber"];
     text        = params["text"];
 
-    if (text == "" )
-      # This is the first request. Note how we start the response with CON
-      response  = "CON What would you want to check \n";
-      response += "1. My Account \n";
-      response += "2. My phone number";
-    elsif (text == "1" )
-      #Business logic for first level response
-      response = "CON Choose account information you want to view \n";
-      response += "1. Account number \n";
-      response += "2. Account balance";
-
-    elsif (text == "2")
-
-      #Business logic for first level response
-      #This is a terminal request. Note how we start the response with END
-      response = "END Your phone number is #{phone_number}";
-
-    elsif (text == "1*1")
-
-      #This is a second level response where the user selected 1 in the first instance
-      account_number  = "ACC1001";
-      #This is a terminal request. Note how we start the response with END
-      response = "END Your account number is #{account_number}";
-
-    elsif ( text == "1*2" )
-
-      #This is a second level response where the user selected 1 in the first instance
-      balance  = "NGN 10,000";
-      #This is a terminal request. Note how we start the response with END
-      response = "END Your balance is #{balance}";
-
-      #Print the response onto the page so that our gateway can read it
-      #header('Content-type: text/plain');
-      #return response
-
+    member = Member.find_by_phone_number(phone_number)
+    if member.blank? ############ New members
+      if (text == "" )
+        # This is the first request. Note how we start the response with CON
+        response  = "CON Welcome #{phone_number}. Your phone number is not registered to Wella Funeral Services. Select action \n";
+        response += "1. Register \n";
+        response += "2. Check premiums \n";
+        response += "3. Exit \n";
+        
+      elsif (text == "1" )
+        #Regiter member
+        response  = "CON Registration: \n Please enter your name\n";
+      elsif (text == "2" )
+        #Check premiums
+      elsif (text == "3" )
+        #Exit
+        response = "END Sesssion terminated";
+      end
+      render :text => response
+    end
+    
+    unless member.blank?
+      if (text == "" )
+        response  = "CON Welcome #{phone_number} to Wella Funeral Services. Select action \n";
+        response += "1. My account \n";
+        response += "2. Exit \n";
+      elsif (text == "1" )
+        response  = "CON My account \n";
+        response += "1. Premiums \n";
+        response += "2. Dependants \n";
+        response += "3. Claims \n";
+      elsif (text == "2" )
+        response  = "END session terminated \n";
+      elsif (text == "1*1" )
+        response  = "CON Premiums \n";
+        response += "1. Check balance \n";
+        response += "2. Pay premiums \n";
+      elsif (text == "1*2" )
+        response  = "CON Dependants \n";
+        response += "1. Add dependant \n";
+        response += "2. Remove dependants \n";
+        response += "3. View dependants \n";
+      elsif (text == "1*3" )
+        response  = "CON Claims \n";
+        response += "1. Make claim \n";
+        response += "2. My claims \n";
+      end
+      render :text => response
     end
     
     render :text => response
