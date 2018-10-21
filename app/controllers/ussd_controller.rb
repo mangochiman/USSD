@@ -29,7 +29,6 @@ class UssdController < ApplicationController
         #Exit
         response = "END Sesssion terminated";
       end
-      render :text => response
     end
     
     unless member.blank?
@@ -58,7 +57,6 @@ class UssdController < ApplicationController
         response += "1. Make claim \n";
         response += "2. My claims \n";
       end
-      render :text => response
     end
     
     render :text => response
