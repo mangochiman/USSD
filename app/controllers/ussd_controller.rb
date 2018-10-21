@@ -11,7 +11,9 @@ class UssdController < ApplicationController
     phone_number = params["phoneNumber"];
     text        = params["text"];
 
+    text = "" if text.split("*").include?("#")
     member = Member.find_by_phone_number(phone_number)
+
     if member.blank? ############ New members
       if (text == "" )
         response  = "CON Welcome #{phone_number}. Your phone number is not registered to Wella Funeral Services. Select action \n";
@@ -27,7 +29,9 @@ class UssdController < ApplicationController
         response += "2. Female \n";
       elsif (text.match(/1*/i)) && (text.split("*").length == 3)
         response  = "CON District you are currently staying: \n";
-
+      elsif (text.match(/1*/i)) && (text.split("*").length == 4)
+        #Member.enroll_in_program(params[:text])
+        response  = "CON We have successfully registered your phone number. Type # to go to main menu: \n";
       elsif (text == "2" )
         #Check premiums
       elsif (text == "3" )
