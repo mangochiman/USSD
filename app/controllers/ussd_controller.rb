@@ -14,15 +14,20 @@ class UssdController < ApplicationController
     member = Member.find_by_phone_number(phone_number)
     if member.blank? ############ New members
       if (text == "" )
-        # This is the first request. Note how we start the response with CON
         response  = "CON Welcome #{phone_number}. Your phone number is not registered to Wella Funeral Services. Select action \n";
         response += "1. Register \n";
         response += "2. Check premiums \n";
         response += "3. Exit \n";
         
       elsif (text == "1" )
-        #Regiter member
-        response  = "CON Registration: \n Please enter your name\n";
+        response  = "CON Registration: \n Please enter your full name\n";
+      elsif (text.match(/1*/i)) && (text.split("*").length == 2)
+        response  = "CON Please select gender: \n";
+        response += "1. Male \n";
+        response += "2. Female \n";
+      elsif (text.match(/1*/i)) && (text.split("*").length == 3)
+        response  = "CON District you are currently staying: \n";
+
       elsif (text == "2" )
         #Check premiums
       elsif (text == "3" )
