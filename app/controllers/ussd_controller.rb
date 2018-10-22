@@ -33,7 +33,7 @@ class UssdController < ApplicationController
         response  = "CON Please select gender: \n"
         response += "1. Male \n"
         response += "2. Female \n"
-      elsif (text.match(/1*/i)) && (text.split("*").length == 3) && [1,2].exclude?(text.split("*").last)
+      elsif (text.match(/1*/i)) && (text.split("*").length == 3) && [1,2].exclude?(text.split("*").last.to_i)
         response  = "END Uknown option selected: Available options are \n"
         response += "1. Male \n"
         response += "2. Female \n"
