@@ -6,10 +6,10 @@ class UssdController < ApplicationController
     at = AfricasTalking::Initialize.new(username, api_key)
 
 
-    session_id   = params["sessionId"];
-    service_code = params["serviceCode"];
-    phone_number = params["phoneNumber"];
-    text        = params["text"];
+    session_id   = params["sessionId"]
+    service_code = params["serviceCode"]
+    phone_number = params["phoneNumber"]
+    text        = params["text"]
 
     text = "" if text.split("*").include?("#")
     member = Member.find_by_phone_number(phone_number)
@@ -30,13 +30,19 @@ class UssdController < ApplicationController
       elsif (text.match(/1*/i)) && (text.split("*").length == 3)
         response  = "CON District you are currently staying: \n";
       elsif (text.match(/1*/i)) && (text.split("*").length == 4)
-        #Member.enroll_in_program(params[:text])
+        Member.enroll_in_program(params)
         response  = "CON We have successfully registered your phone number. Type # to go to main menu: \n";
       elsif (text == "2" )
         #Check premiums
+        response  = "CON Premiums: \n Below are the premiums that you can pay. ****************************\n";
+        response += "Choose the one you are comfortable with\n"
+        response += "Press # to go to the main menu"
       elsif (text == "3" )
         #Exit
         response = "END Sesssion terminated";
+      else
+        response  = "CON Uknown option selected: \n";
+        response += "Press # to go to the main menu"
       end
     end
     
