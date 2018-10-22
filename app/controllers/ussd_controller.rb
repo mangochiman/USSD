@@ -29,18 +29,18 @@ class UssdController < ApplicationController
         
       elsif (text == "1" )
         response  = "CON Registration: \n Please enter your full name\n";
-      elsif (text.match(/1*/i)) && (text.split("*").length == 2)
+      elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").length == 2)
         response  = "CON Please select gender: \n"
         response += "1. Male \n"
         response += "2. Female \n"
-      elsif (text.match(/1*/i)) && (text.split("*").length == 3) && [1,2].exclude?(text.split("*").last.to_i)
+      elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").length == 3) && [1,2].exclude?(text.split("*").last.to_i)
         response  = "END Uknown option selected: Available options are \n"
         response += "1. Male \n"
         response += "2. Female \n"
-      elsif (text.match(/1*/i)) && (text.split("*").length == 3)
+      elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").length == 3)
         response  = "CON District you are currently staying: \n"
       elsif (text.match(/1*/i)) && (text.split("*").length == 4)
-        Member.enroll_in_program(params)
+        Member.enroll_in_program(text, phone_number)
         response  = "CON We have successfully registered your phone number. Type # to go to main menu: \n";
       elsif (text == "2" )
         #Check premiums
