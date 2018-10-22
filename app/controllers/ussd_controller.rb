@@ -27,7 +27,7 @@ class UssdController < ApplicationController
         response += "2. Check premiums \n"
         response += "3. Exit \n"
         
-      elsif (text == "1" )
+      elsif (text == "1" || text.split("*").last.to_s == "1" )
         response  = "CON Registration: \n Please enter your full name\n";
       elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").length == 2)
         response  = "CON Please select gender: \n"
@@ -42,15 +42,16 @@ class UssdController < ApplicationController
       elsif (text.match(/1*/i)) && (text.split("*").length == 4)
         Member.enroll_in_program(text, phone_number)
         response  = "CON We have successfully registered your phone number. Type # to go to main menu: \n";
-      elsif (text == "2" )
+      elsif (text == "2" || text.split("*").last.to_s == "2" )
         #Check premiums
-        response  = "CON Premiums: \n Below are the premiums that you can pay. ****************************\n";
+        response  = "CON Premiums: \n Below are the premiums that you can pay. ";
         response += "Choose the one you are comfortable with\n"
         response += "Press # to go to the main menu"
-      elsif (text == "3" )
+      elsif (text == "3"|| text.split("*").last.to_s == "3" )
         #Exit
         response = "END Sesssion terminated"
       else
+
         response  = "END Uknown option selected: Available options are \n"
         response += "1. Register \n"
         response += "2. Check premiums \n"
