@@ -39,13 +39,12 @@ class UssdController < ApplicationController
         response += "2. Female \n"
       elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").length == 3)
         response  = "CON District you are currently staying: \n"
-      elsif (text.match(/1*/i)) && (text.split("*").length == 4)
+      elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").length == 4)
         Member.enroll_in_program(text, phone_number)
         response  = "CON We have successfully registered your phone number. Type # to go to main menu: \n";
       elsif (text == "2" || text.split("*").last.to_s == "2" )
         #Check premiums
-        response  = "CON Premiums: \n Below are the premiums that you can pay. ";
-        response += "Choose the one you are comfortable with\n"
+        response  = "CON Premiums: \n Below are the premiums that you can pay. \n\n\n";
         response += "Press # to go to the main menu"
       elsif (text == "3"|| text.split("*").last.to_s == "3" )
         #Exit
