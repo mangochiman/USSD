@@ -45,11 +45,6 @@ class UssdController < ApplicationController
           um.user_id = session_id
           um.menu_id = menu.menu_id
           um.save
-
-          if (menu.name.match(/EXIT/i))
-            response = "END Sesssion terminated"
-            render :text => response and return
-          end
         end
 
         latest_user_menu = UserMenu.where(["user_id =?", session_id]).last
