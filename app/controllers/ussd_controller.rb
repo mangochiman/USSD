@@ -99,7 +99,8 @@ class UssdController < ApplicationController
       gender_sub_menu = SubMenu.find_by_name("gender")
       current_district_sub_menu = SubMenu.find_by_name("District")
       seen_status = SeenStatus.where(["user_id =?", session_id]).last
-
+      user_log = UserLog.where(["user_id =?", session_id]).last
+      
       if seen_status.blank?
         seen_status = SeenStatus.new
         seen_status.user_id = session_id
@@ -142,7 +143,7 @@ class UssdController < ApplicationController
           
           return response
         else
-          user_log.name = last_response
+          user_log.name = params[:text].split("*").last
           user_log.save
         end
 
@@ -163,8 +164,8 @@ class UssdController < ApplicationController
           return response
         else
           gender = ""
-          gender = "Male" if last_response.to_s == "1"
-          gender = "Female" if last_response.to_s == "2"
+          gender = "Male" if params[:text].split("*").last.to_s == "1"
+          gender = "Female" if params[:text].split("*").last.to_s == "2"
 
           user_log.gender = gender
           user_log.save
@@ -184,10 +185,12 @@ class UssdController < ApplicationController
           
           return response
         else
-          user_log.district = last_response
+          user_log.district = params[:text].split("*").last
           user_log.save
         end
 
+        user_log = UserLog.where(["user_id =?", session_id]).last
+        
         new_member = Member.new
         new_member.phone_number = phone_number
         new_member.name = user_log.name
