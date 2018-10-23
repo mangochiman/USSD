@@ -19,25 +19,22 @@ class UssdController < ApplicationController
     end
     
     member = Member.find_by_phone_number(phone_number)
-
+    #/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/   for matching valid person name
+    
     if member.blank? ############ New members
-      if (text == "" )
+      if (text == "" ) #""
         response  = "CON Welcome #{phone_number}. Your phone number is not registered to Wella Funeral Services. Select action \n";
         response += "1. Register \n"
         response += "2. Check premiums \n"
         response += "3. Exit \n"
         
-      elsif (text == "1" || text.split("*").last.to_s == "1" )
+      elsif (text == "1" || text.split("*").last.to_s == "1" ) #"1"
         response  = "CON Registration: \n Please enter your full name\n";
-      elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").length == 2)
+      elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").last.match(/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/)) #1*Ernest
         response  = "CON Please select gender: \n"
         response += "1. Male \n"
         response += "2. Female \n"
-      elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").length == 3) && [1,2].exclude?(text.split("*").last.to_i)
-        response  = "END Uknown option selected: Available options are \n"
-        response += "1. Male \n"
-        response += "2. Female \n"
-      elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").length == 3)
+      elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").length == 3) #1*Ernest*1
         response  = "CON District you are currently staying: \n"
       elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").length == 4)
         Member.enroll_in_program(text, phone_number)
