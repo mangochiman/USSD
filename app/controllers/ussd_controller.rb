@@ -133,11 +133,12 @@ class UssdController < ApplicationController
           response  = "CON Registration: \n Please enter your full name\n"
           seen_status.name = true
           seen_status.save
-          return response
-        else
+          
           fullname_answer.sub_menu_id = full_name_sub_menu.id
           fullname_answer.save
-
+          
+          return response
+        else
           user_log.name = last_response
           user_log.save
         end
@@ -146,12 +147,15 @@ class UssdController < ApplicationController
           response  = "CON Please select gender: \n"
           response += "1. Male \n"
           response += "2. Female \n"
+          
           seen_status.gender = true
           seen_status.save
-          return response
-        else
+
           gender_answer.sub_menu_id = gender_sub_menu.id
           gender_answer.save
+          
+          return response
+        else
           gender = ""
           gender = "Male" if last_response.to_s == "1"
           gender = "Female" if last_response.to_s == "2"
@@ -162,13 +166,15 @@ class UssdController < ApplicationController
 
         if current_district_answer.blank? && !district_asked
           response  = "CON District you are currently staying: \n"
+          
           seen_status.district = true
           seen_status.save
-          return response
-        else
+
           current_district_answer.sub_menu_id = current_district_sub_menu.id
           current_district_answer.save
           
+          return response
+        else
           user_log.district = last_response
           user_log.save
         end
