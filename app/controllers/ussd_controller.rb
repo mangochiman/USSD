@@ -113,9 +113,9 @@ class UssdController < ApplicationController
       end
 
       if menu.name.match(/REGISTER/i)
-        fullname_answer = SubMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
-        gender_answer = SubMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
-        current_district_answer = SubMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
+        fullname_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
+        gender_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
+        current_district_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
 
         if fullname_answer.blank?
           response  = "CON Registration: \n Please enter your full name\n"
