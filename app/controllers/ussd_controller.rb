@@ -134,6 +134,9 @@ class UssdController < ApplicationController
           seen_status.name = true
           seen_status.save
           
+          fullname_answer = UserMenu.new
+          fullname_answer.user_id = session_id
+          fullname_answer.menu_id = menu.menu_id
           fullname_answer.sub_menu_id = full_name_sub_menu.id
           fullname_answer.save
           
@@ -151,6 +154,9 @@ class UssdController < ApplicationController
           seen_status.gender = true
           seen_status.save
 
+          gender_answer = UserMenu.new
+          gender_answer.user_id = session_id
+          gender_answer.menu_id = menu.menu_id
           gender_answer.sub_menu_id = gender_sub_menu.id
           gender_answer.save
           
@@ -170,6 +176,9 @@ class UssdController < ApplicationController
           seen_status.district = true
           seen_status.save
 
+          current_district_answer = UserMenu.new
+          current_district_answer.user_id = session_id
+          current_district_answer.menu_id = menu.menu_id
           current_district_answer.sub_menu_id = current_district_sub_menu.id
           current_district_answer.save
           
