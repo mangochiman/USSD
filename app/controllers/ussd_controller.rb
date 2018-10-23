@@ -148,8 +148,10 @@ class UssdController < ApplicationController
           
           return response
         else
-          user_log.name = params[:text].split("*").last
-          user_log.save
+          if user_log.name.blank?
+            user_log.name = params[:text].split("*").last
+            user_log.save
+          end
         end
 
         if gender_answer.blank? && !gender_asked
@@ -172,8 +174,10 @@ class UssdController < ApplicationController
           gender = "Male" if params[:text].split("*").last.to_s == "1"
           gender = "Female" if params[:text].split("*").last.to_s == "2"
 
-          user_log.gender = gender
-          user_log.save
+          if user_log.gender.blank?
+            user_log.gender = gender
+            user_log.save
+          end
         end
 
         if current_district_answer.blank? && !district_asked
@@ -190,8 +194,10 @@ class UssdController < ApplicationController
           
           return response
         else
-          user_log.district = params[:text].split("*").last
-          user_log.save
+          if user_log.district.blank?
+            user_log.district = params[:text].split("*").last
+            user_log.save
+          end
         end
 
         user_log = UserLog.where(["user_id =?", session_id]).last
