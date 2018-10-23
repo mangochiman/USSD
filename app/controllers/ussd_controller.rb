@@ -26,7 +26,12 @@ class UssdController < ApplicationController
     last_response = params["text"].split("*").last
 
     user_log = UserLog.where(["user_id =?", session_id]).last
-    user_log = UserLog.new if user_log.blank?
+
+    if user_log.blank?
+      user_log = UserLog.new
+      user_log.user_id = session_id
+      user_log.save
+    end
     
     if member.blank?
       if latest_user_menu.blank?
@@ -99,8 +104,8 @@ class UssdController < ApplicationController
       gender_sub_menu = SubMenu.find_by_name("gender")
       current_district_sub_menu = SubMenu.find_by_name("District")
       seen_status = SeenStatus.where(["user_id =?", session_id]).last
-      user_log = UserLog.where(["user_id =?", session_id]).last
       
+
       if seen_status.blank?
         seen_status = SeenStatus.new
         seen_status.user_id = session_id
