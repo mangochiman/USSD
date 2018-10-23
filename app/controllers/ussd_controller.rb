@@ -98,6 +98,13 @@ class UssdController < ApplicationController
       full_name_sub_menu = SubMenu.find_by_name("Full name")
       gender_sub_menu = SubMenu.find_by_name("gender")
       current_district_sub_menu = SubMenu.find_by_name("District")
+      seen_status = SeenStatus.where(["user_id =?", session_id]).last
+
+      if seen_status.blank?
+        seen_status = SeenStatus.new
+        seen_status.user_id = session_id
+        seen_status.save
+      end
 
       if menu.name.match(/EXIT/i)
         response = "END Sesssion terminated"
@@ -117,56 +124,70 @@ class UssdController < ApplicationController
         gender_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
         current_district_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
 
-        if fullname_answer.blank?
+        seen_status = SeenStatus.where(["user_id =?", session_id]).last
+        fullname_asked = (seen_status.phone_number == true)
+        gender_asked = (seen_status.gender == true)
+        district_asked = (seen_status.district == true)
+        
+        if fullname_answer.blank? && !fullname_asked
           response  = "CON Registration: \n Please enter your full name\n"
+          seen_status.name = true
+          seen_status.save
           return response
         else
           fullname_answer.sub_menu_id = full_name_sub_menu.id
           fullname_answer.save
-        end
 
-        if gender_answer.blank?
           user_log.name = last_response
           user_log.save
+        end
 
+        if gender_answer.blank? && !gender_asked
           response  = "CON Please select gender: \n"
           response += "1. Male \n"
           response += "2. Female \n"
+          seen_status.gender = true
+          seen_status.save
           return response
         else
           gender_answer.sub_menu_id = gender_sub_menu.id
           gender_answer.save
-        end
-
-        if current_district_answer.blank?
           gender = ""
           gender = "Male" if last_response.to_s == "1"
           gender = "Female" if last_response.to_s == "2"
 
           user_log.gender = gender
           user_log.save
+        end
+
+        if current_district_answer.blank? && !district_asked
           response  = "CON District you are currently staying: \n"
+          seen_status.district = true
+          seen_status.save
           return response
         else
           current_district_answer.sub_menu_id = current_district_sub_menu.id
           current_district_answer.save
-        end
-
-        if user_log.district.blank?
+          
           user_log.district = last_response
           user_log.save
-
-          new_member = Member.new
-          new_member.phone_number = phone_number
-          new_member.name = user_log.name
-          new_member.gender = user_log.gender
-          new_member.district = user_log.district
-          new_member.save
-
-          response  = "CON We have successfully registered your phone number. Type # to go to main menu: \n";
-          return response
         end
 
+        new_member = Member.new
+        new_member.phone_number = phone_number
+        new_member.name = user_log.name
+        new_member.gender = user_log.gender
+        new_member.district = user_log.district
+        new_member.save
+
+        response  = "CON We have successfully registered your phone number with the following details.";
+        response += "Name: #{user_log.name}\n"
+        response += "Gender: #{user_log.gender}\n"
+        response += "Current district: #{user_log.district}\n\n"
+
+        response += "Type # to go to main menu: \n"
+
+        return response
       end
 
     end
