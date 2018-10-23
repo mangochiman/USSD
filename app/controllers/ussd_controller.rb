@@ -125,7 +125,7 @@ class UssdController < ApplicationController
         current_district_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
 
         seen_status = SeenStatus.where(["user_id =?", session_id]).last
-        fullname_asked = (seen_status.phone_number == true)
+        fullname_asked = (seen_status.name == true)
         gender_asked = (seen_status.gender == true)
         district_asked = (seen_status.district == true)
         
