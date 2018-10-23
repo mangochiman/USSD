@@ -45,12 +45,12 @@ class UssdController < ApplicationController
           um.user_id = session_id
           um.menu_id = menu.menu_id
           um.save
+
+          if (menu.name.match(/EXIT/i))
+            response = "END Sesssion terminated"
+          end
         end
 
-        if (menu.name.match(/EXIT/i))
-        response = "END Sesssion terminated"
-        end
-        
         render :text => response and return
       end
 
