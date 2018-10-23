@@ -209,7 +209,7 @@ class UssdController < ApplicationController
         new_member.district = user_log.district
         new_member.save
 
-        response  = "CON We have successfully registered your phone number with the following details.";
+        response  = "CON We have successfully registered your phone number with the following details.\n";
         response += "Name: #{user_log.name}\n"
         response += "Gender: #{user_log.gender}\n"
         response += "Current district: #{user_log.district}\n\n"
