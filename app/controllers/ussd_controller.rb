@@ -174,6 +174,17 @@ class UssdController < ApplicationController
           gender = "Male" if params[:text].split("*").last.to_s == "1"
           gender = "Female" if params[:text].split("*").last.to_s == "2"
 
+          if gender.blank?
+            seen_status.gender = false
+            seen_status.save
+            gender_answer.delete
+
+            response  = "CON Invalid gender selected: \n"
+            response += "1. Male \n"
+            response += "2. Female \n"
+            return response
+          end
+
           if user_log.gender.blank?
             user_log.gender = gender
             user_log.save
