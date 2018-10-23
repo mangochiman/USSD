@@ -11,6 +11,8 @@ class UssdController < ApplicationController
     phone_number = params["phoneNumber"]
     text        = params["text"]
 
+    menu = Menu.order("menu_number").map(&:name)
+
     if text.split("*").include?("#")
       if text.split("*").last == "#"
         text = ""
@@ -19,42 +21,120 @@ class UssdController < ApplicationController
     end
     
     member = Member.find_by_phone_number(phone_number)
-    #/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/   for matching valid person name
-    
-    if member.blank? ############ New members
-      if (text == "" ) #""
-        response  = "CON Welcome #{phone_number}. Your phone number is not registered to Wella Funeral Services. Select action \n";
-        response += "1. Register \n"
-        response += "2. Check premiums \n"
-        response += "3. Exit \n"
-        
-      elsif (text == "1" || text.split("*").last.to_s == "1" ) #"1"
-        response  = "CON Registration: \n Please enter your full name\n";
-      elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").last.match(/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/)) #1*Ernest
-        response  = "CON Please select gender: \n"
-        response += "1. Male \n"
-        response += "2. Female \n"
-      elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").length == 3) #1*Ernest*1
-        response  = "CON District you are currently staying: \n"
-      elsif (text.match(/1*/i).to_s.length > 0) && (text.split("*").length == 4)
-        Member.enroll_in_program(text, phone_number)
-        response  = "CON We have successfully registered your phone number. Type # to go to main menu: \n";
-      elsif (text == "2" || text.split("*").last.to_s == "2" )
-        #Check premiums
-        response  = "CON Premiums: \n Below are the premiums that you can pay. \n\n\n";
-        response += "Press # to go to the main menu"
-      elsif (text == "3"|| text.split("*").last.to_s == "3" )
-        #Exit
-        response = "END Sesssion terminated"
-      else
+    latest_user_menu = UserMenu.where(["user_id =?", session_id]).last
+    #menu_number = params["text"].split("*").last
+    last_response = params["text"].split("*").last
 
-        response  = "END Uknown option selected: Available options are \n"
-        response += "1. Register \n"
-        response += "2. Check premiums \n"
-        response += "3. Exit \n"
-      end
-    end
+    user_log = UserLog.where(["user_id =?", session_id]).last
+    user_log = UserLog.new if user_log.blank?
     
+    if member.blank?
+      if latest_user_menu.blank?
+        response  = "CON Welcome #{phone_number}. Your phone number is not registered to Wella Funeral Services. Select action \n";
+
+        count = 1
+        menu.each do |name|
+          response += "#{count}. #{name} \n"
+          count += 1
+        end
+
+        menu = Menu.where(["menu_number =?", last_response]).last
+
+        unless menu.blank?
+          um = UserMenu.new
+          um.user_id = session_id
+          um.menu_id = menu.menu_id
+          um.save
+        end
+
+        if (menu.name.match(/EXIT/i))
+        response = "END Sesssion terminated"
+        end
+        
+        render :text => response and return
+      end
+
+      unless latest_user_menu.blank?
+        menu = latest_user_menu.menu
+        full_name_sub_menu = SubMenu.find_by_name("Full name")
+        gender_sub_menu = SubMenu.find_by_name("gender")
+        current_district_sub_menu = SubMenu.find_by_name("District")
+
+        if menu.name.match(/EXIT/i)
+          response = "END Sesssion terminated"
+          latest_user_menu.delete
+          render :text => response and return
+        end
+
+        if menu.name.match(/CHECK PREMIUMS/i)
+          response  = "CON Premiums: \n Below are the premiums that you can pay. \n\n\n";
+          response += "Press # to go to the main menu"
+          latest_user_menu.delete
+          render :text => response and return
+        end
+
+        if menu.name.match(/REGISTER/i)
+          fullname_answer = SubMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
+          gender_answer = SubMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
+          current_district_answer = SubMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
+
+          if fullname_answer.blank?
+            response  = "CON Registration: \n Please enter your full name\n"
+            render :text => response and return
+          else
+            fullname_answer.sub_menu_id = full_name_sub_menu.id
+            fullname_answer.save
+          end
+
+          if gender_answer.blank?
+            user_log.name = last_response
+            user_log.save
+            
+            response  = "CON Please select gender: \n"
+            response += "1. Male \n"
+            response += "2. Female \n"
+            render :text => response and return
+          else
+            gender_answer.sub_menu_id = gender_sub_menu.id
+            gender_answer.save
+          end
+
+          if current_district_answer.blank?
+            gender = ""
+            gender = "Male" if last_response.to_s == "1"
+            gender = "Female" if last_response.to_s == "2"
+
+            user_log.gender = gender
+            user_log.save
+            response  = "CON District you are currently staying: \n"
+            render :text => response and return
+          else
+            current_district_answer.sub_menu_id = current_district_sub_menu.id
+            current_district_answer.save
+          end
+
+          if user_log.district.blank?
+            user_log.district = last_response
+            user_log.save
+
+            new_member = Member.new
+            new_member.phone_number = phone_number
+            new_member.name = user_log.name
+            new_member.gender = user_log.gender
+            new_member.district = user_log.district
+            new_member.save
+
+            response  = "CON We have successfully registered your phone number. Type # to go to main menu: \n";
+          end
+
+        end
+ 
+      end
+      
+    end
+
+
+    ############# Existing member #####
     unless member.blank?
       if (text == "" )
         response  = "CON Welcome #{phone_number} to Wella Funeral Services. Select action \n"
