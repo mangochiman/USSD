@@ -48,89 +48,20 @@ class UssdController < ApplicationController
 
           if (menu.name.match(/EXIT/i))
             response = "END Sesssion terminated"
+            render :text => response and return
           end
         end
 
-        render :text => response and return
+        latest_user_menu = UserMenu.where(["user_id =?", session_id]).last
+        unless latest_user_menu.blank?
+          response = ussd_logic(latest_user_menu, user_log, last_response, phone_number, session_id)
+          render :text => response and return if response
+        end
+      else
+        response = ussd_logic(latest_user_menu, user_log, last_response, phone_number, session_id)
+        render :text => response and return if response
       end
-
-      unless latest_user_menu.blank?
-        menu = latest_user_menu.menu
-        full_name_sub_menu = SubMenu.find_by_name("Full name")
-        gender_sub_menu = SubMenu.find_by_name("gender")
-        current_district_sub_menu = SubMenu.find_by_name("District")
-
-        if menu.name.match(/EXIT/i)
-          response = "END Sesssion terminated"
-          latest_user_menu.delete
-          render :text => response and return
-        end
-
-        if menu.name.match(/CHECK PREMIUMS/i)
-          response  = "CON Premiums: \n Below are the premiums that you can pay. \n\n\n";
-          response += "Press # to go to the main menu"
-          latest_user_menu.delete
-          render :text => response and return
-        end
-
-        if menu.name.match(/REGISTER/i)
-          fullname_answer = SubMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
-          gender_answer = SubMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
-          current_district_answer = SubMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
-
-          if fullname_answer.blank?
-            response  = "CON Registration: \n Please enter your full name\n"
-            render :text => response and return
-          else
-            fullname_answer.sub_menu_id = full_name_sub_menu.id
-            fullname_answer.save
-          end
-
-          if gender_answer.blank?
-            user_log.name = last_response
-            user_log.save
-            
-            response  = "CON Please select gender: \n"
-            response += "1. Male \n"
-            response += "2. Female \n"
-            render :text => response and return
-          else
-            gender_answer.sub_menu_id = gender_sub_menu.id
-            gender_answer.save
-          end
-
-          if current_district_answer.blank?
-            gender = ""
-            gender = "Male" if last_response.to_s == "1"
-            gender = "Female" if last_response.to_s == "2"
-
-            user_log.gender = gender
-            user_log.save
-            response  = "CON District you are currently staying: \n"
-            render :text => response and return
-          else
-            current_district_answer.sub_menu_id = current_district_sub_menu.id
-            current_district_answer.save
-          end
-
-          if user_log.district.blank?
-            user_log.district = last_response
-            user_log.save
-
-            new_member = Member.new
-            new_member.phone_number = phone_number
-            new_member.name = user_log.name
-            new_member.gender = user_log.gender
-            new_member.district = user_log.district
-            new_member.save
-
-            response  = "CON We have successfully registered your phone number. Type # to go to main menu: \n";
-          end
-
-        end
- 
-      end
-      
+  
     end
 
 
@@ -164,6 +95,86 @@ class UssdController < ApplicationController
     end
     
     render :text => response
+  end
+
+  def ussd_logic(latest_user_menu, user_log, last_response, phone_number, session_id)
+    unless latest_user_menu.blank?
+      menu = latest_user_menu.menu
+      full_name_sub_menu = SubMenu.find_by_name("Full name")
+      gender_sub_menu = SubMenu.find_by_name("gender")
+      current_district_sub_menu = SubMenu.find_by_name("District")
+
+      if menu.name.match(/EXIT/i)
+        response = "END Sesssion terminated"
+        latest_user_menu.delete
+        return response
+      end
+
+      if menu.name.match(/CHECK PREMIUMS/i)
+        response  = "CON Premiums: \n Below are the premiums that you can pay. \n\n\n";
+        response += "Press # to go to the main menu"
+        latest_user_menu.delete
+        return response
+      end
+
+      if menu.name.match(/REGISTER/i)
+        fullname_answer = SubMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
+        gender_answer = SubMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
+        current_district_answer = SubMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
+
+        if fullname_answer.blank?
+          response  = "CON Registration: \n Please enter your full name\n"
+          return response
+        else
+          fullname_answer.sub_menu_id = full_name_sub_menu.id
+          fullname_answer.save
+        end
+
+        if gender_answer.blank?
+          user_log.name = last_response
+          user_log.save
+
+          response  = "CON Please select gender: \n"
+          response += "1. Male \n"
+          response += "2. Female \n"
+          return response
+        else
+          gender_answer.sub_menu_id = gender_sub_menu.id
+          gender_answer.save
+        end
+
+        if current_district_answer.blank?
+          gender = ""
+          gender = "Male" if last_response.to_s == "1"
+          gender = "Female" if last_response.to_s == "2"
+
+          user_log.gender = gender
+          user_log.save
+          response  = "CON District you are currently staying: \n"
+          return response
+        else
+          current_district_answer.sub_menu_id = current_district_sub_menu.id
+          current_district_answer.save
+        end
+
+        if user_log.district.blank?
+          user_log.district = last_response
+          user_log.save
+
+          new_member = Member.new
+          new_member.phone_number = phone_number
+          new_member.name = user_log.name
+          new_member.gender = user_log.gender
+          new_member.district = user_log.district
+          new_member.save
+
+          response  = "CON We have successfully registered your phone number. Type # to go to main menu: \n";
+          return response
+        end
+
+      end
+
+    end
   end
 
 end
