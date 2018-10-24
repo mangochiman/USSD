@@ -134,80 +134,86 @@ class UssdController < ApplicationController
         fullname_asked = (seen_status.name == true)
         gender_asked = (seen_status.gender == true)
         district_asked = (seen_status.district == true)
-        
-        if fullname_answer.blank? && !fullname_asked
-          response  = "CON Registration: \n Please enter your full name\n"
-          seen_status.name = true
-          seen_status.save
+
+        if user_log.name.blank?
+          if fullname_answer.blank? && !fullname_asked
+            response  = "CON Registration: \n Please enter your full name\n"
+            seen_status.name = true
+            seen_status.save
           
-          fullname_answer = UserMenu.new
-          fullname_answer.user_id = session_id
-          fullname_answer.menu_id = menu.menu_id
-          fullname_answer.sub_menu_id = full_name_sub_menu.id
-          fullname_answer.save
+            fullname_answer = UserMenu.new
+            fullname_answer.user_id = session_id
+            fullname_answer.menu_id = menu.menu_id
+            fullname_answer.sub_menu_id = full_name_sub_menu.id
+            fullname_answer.save
           
-          return response
-        else
-          if user_log.name.blank?
-            user_log.name = params[:text].split("*").last
-            user_log.save
+            return response
+          else
+            if user_log.name.blank?
+              user_log.name = params[:text].split("*").last
+              user_log.save
+            end
           end
         end
 
-        if gender_answer.blank? && !gender_asked
-          response  = "CON Please select gender: \n"
-          response += "1. Male \n"
-          response += "2. Female \n"
-          
-          seen_status.gender = true
-          seen_status.save
-
-          gender_answer = UserMenu.new
-          gender_answer.user_id = session_id
-          gender_answer.menu_id = menu.menu_id
-          gender_answer.sub_menu_id = gender_sub_menu.id
-          gender_answer.save
-          
-          return response
-        else
-          gender = ""
-          gender = "Male" if params[:text].split("*").last.to_s == "1"
-          gender = "Female" if params[:text].split("*").last.to_s == "2"
-
-          if gender.blank?
-            seen_status.gender = false
-            seen_status.save
-            gender_answer.delete
-
-            response  = "CON Invalid gender selected: \n"
+        if user_log.gender.blank?
+          if gender_answer.blank? && !gender_asked
+            response  = "CON Please select gender: \n"
             response += "1. Male \n"
             response += "2. Female \n"
-            return response
-          end
+          
+            seen_status.gender = true
+            seen_status.save
 
-          if user_log.gender.blank?
-            user_log.gender = gender
-            user_log.save
+            gender_answer = UserMenu.new
+            gender_answer.user_id = session_id
+            gender_answer.menu_id = menu.menu_id
+            gender_answer.sub_menu_id = gender_sub_menu.id
+            gender_answer.save
+          
+            return response
+          else
+            gender = ""
+            gender = "Male" if params[:text].split("*").last.to_s == "1"
+            gender = "Female" if params[:text].split("*").last.to_s == "2"
+
+            if gender.blank?
+              seen_status.gender = false
+              seen_status.save
+              gender_answer.delete
+
+              response  = "CON Invalid gender selected: \n"
+              response += "1. Male \n"
+              response += "2. Female \n"
+              return response
+            end
+
+            if user_log.gender.blank?
+              user_log.gender = gender
+              user_log.save
+            end
           end
         end
 
-        if current_district_answer.blank? && !district_asked
-          response  = "CON District you are currently staying: \n"
+        if user_log.district.blank?
+          if current_district_answer.blank? && !district_asked
+            response  = "CON District you are currently staying: \n"
           
-          seen_status.district = true
-          seen_status.save
+            seen_status.district = true
+            seen_status.save
 
-          current_district_answer = UserMenu.new
-          current_district_answer.user_id = session_id
-          current_district_answer.menu_id = menu.menu_id
-          current_district_answer.sub_menu_id = current_district_sub_menu.id
-          current_district_answer.save
+            current_district_answer = UserMenu.new
+            current_district_answer.user_id = session_id
+            current_district_answer.menu_id = menu.menu_id
+            current_district_answer.sub_menu_id = current_district_sub_menu.id
+            current_district_answer.save
           
-          return response
-        else
-          if user_log.district.blank?
-            user_log.district = params[:text].split("*").last
-            user_log.save
+            return response
+          else
+            if user_log.district.blank?
+              user_log.district = params[:text].split("*").last
+              user_log.save
+            end
           end
         end
 
