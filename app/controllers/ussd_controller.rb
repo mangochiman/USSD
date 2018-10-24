@@ -149,6 +149,15 @@ class UssdController < ApplicationController
           
             return response
           else
+            if (params[:text].last == "*")
+              seen_status.name = false
+              seen_status.save
+              fullname_answer.delete
+
+              response  = "CON Name can not be blank: \n\n"
+              response += "Press any key to go to name input"
+              return response
+            end
             if user_log.name.blank?
               user_log.name = params[:text].split("*").last
               user_log.save
@@ -176,15 +185,24 @@ class UssdController < ApplicationController
             gender = ""
             gender = "Male" if params[:text].split("*").last.to_s == "1"
             gender = "Female" if params[:text].split("*").last.to_s == "2"
-
-            if gender.blank?
+            
+            if (params[:text].last == "*")
               seen_status.gender = false
               seen_status.save
               gender_answer.delete
 
-              response  = "CON Invalid gender selected: \n"
-              response += "1. Male \n"
-              response += "2. Female \n"
+              response  = "CON Gender can not be blank: \n\n"
+              response += "Press any key to go to gender menu"
+              return response
+            end
+
+            if (gender.blank?)
+              seen_status.gender = false
+              seen_status.save
+              gender_answer.delete
+
+              response  = "CON Invalid gender selected: \n\n"
+              response += "Press any key to go to gender menu"
               return response
             end
 
@@ -210,6 +228,15 @@ class UssdController < ApplicationController
           
             return response
           else
+            if (params[:text].last == "*")
+              seen_status.district = false
+              seen_status.save
+              current_district_answer.delete
+
+              response  = "CON District can not be blank: \n\n"
+              response += "Press any key to go to district input"
+              return response
+            end
             if user_log.district.blank?
               user_log.district = params[:text].split("*").last
               user_log.save
