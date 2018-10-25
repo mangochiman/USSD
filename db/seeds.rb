@@ -44,7 +44,7 @@ main_menu.each do |key, values|
   m.save
   values.each do |k, v|
     sm = MainSubMenu.new
-    sm.menu_id = m.menu_id
+    sm.main_menu_id = m.main_menu_id
     sm.name = v
     sm.sub_menu_number = k
     sm.save
