@@ -307,7 +307,6 @@ class UssdController < ApplicationController
   end
 
   def existing_client_workflow(latest_user_menu, user_log, last_response, phone_number, session_id)
-  raise params.inspect
     unless latest_user_menu.blank?
       menu = latest_user_menu.menu
 
