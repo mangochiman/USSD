@@ -317,7 +317,7 @@ class UssdController < ApplicationController
       end
 
       if menu.name.match(/CLAIMS/i)
-        response  = "CON Welcome to Claims Menu. \n\n\n";
+        response  = "CON Welcome to Claims Menu. \n";
         sub_menus = menu.main_sub_menus
         count = 1
         sub_menus.each do |sub_menu|
@@ -330,7 +330,7 @@ class UssdController < ApplicationController
       end
 
       if menu.name.match(/DEPENDANTS/i)
-        response  = "CON Welcome to Dependants Menu. \n\n\n";
+        response  = "CON Welcome to Dependants Menu. \n";
         sub_menus = menu.main_sub_menus
         count = 1
         sub_menus.each do |sub_menu|
@@ -343,7 +343,7 @@ class UssdController < ApplicationController
       end
 
       if menu.name.match(/PAYMENTS/i)
-        response  = "CON Welcome to Payments Menu. \n\n\n";
+        response  = "CON Welcome to Payments Menu. \n";
         sub_menus = menu.main_sub_menus
         count = 1
         sub_menus.each do |sub_menu|
