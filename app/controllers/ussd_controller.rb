@@ -67,34 +67,68 @@ class UssdController < ApplicationController
 
     ############# Existing member #####
     unless member.blank?
-      if (text == "" )
-        response  = "CON Welcome #{phone_number} to Wella Funeral Services. Select action \n"
-        response += "1. My account \n"
-        response += "2. Exit \n"
-      elsif (text == "1" )
-        response  = "CON My account \n"
-        response += "1. Premiums \n"
-        response += "2. Dependants \n"
-        response += "3. Claims \n"
-      elsif (text == "2" )
-        response  = "END session terminated \n"
-      elsif (text == "1*1" )
-        response  = "CON Premiums \n"
-        response += "1. Check balance \n"
-        response += "2. Pay premiums \n"
-      elsif (text == "1*2" )
-        response  = "CON Dependants \n"
-        response += "1. Add dependant \n"
-        response += "2. Remove dependants \n"
-        response += "3. View dependants \n"
-      elsif (text == "1*3" )
-        response  = "CON Claims \n"
-        response += "1. Make claim \n"
-        response += "2. My claims \n"
+      main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
+      user_parent_menu = UserParentMenu.where(["user_id =?", session_id]).last
+
+      if user_parent_menu.blank?
+        
+        if last_response.to_s == "1"
+          user_parent_menu = UserParentMenu.new
+          user_parent_menu.user_id = session_id
+          user_parent_menu.save
+        end
+        
+        if last_response.to_s == "2"
+          response = "END Sesssion terminated"
+          render :text => response
+        end
       end
+
+      unless user_parent_menu.blank?
+        if main_latest_user_menu.blank?
+          menu = MainMenu.where(["menu_number =?", last_response]).last
+
+          unless menu.blank?
+            main_user_menu = MainUserMenu.new
+            main_user_menu.user_id = session_id
+            main_user_menu.main_menu_id = menu.main_menu_id
+            main_user_menu.save
+          end
+
+          main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
+          unless main_latest_user_menu.blank?
+            response = existing_client_workflow(latest_user_menu, user_log, last_response, phone_number, session_id)
+            render :text => response and return if response
+          end
+        else
+          response = existing_client_workflow(latest_user_menu, user_log, last_response, phone_number, session_id)
+          render :text => response and return if response
+        end
+      end
+
+      response  = "CON Welcome #{member.name} to Wella Insurance Services. Select action \n";
+
+      response += "1. My Account\n"
+      response += "2. Exit\n"
+
+      render :text => response and return if response
+      
     end
-    
+
     render :text => response
+  end
+
+  def first_level_ussd_menu_hash
+    data = {
+      "1" => "My account",
+      "2" => "Exit"
+    }
+    return data
+  end
+
+
+  def clean_db(session_id)
+
   end
 
   def ussd_logic(latest_user_menu, user_log, last_response, phone_number, session_id)
@@ -259,11 +293,42 @@ class UssdController < ApplicationController
         response += "Current district: #{user_log.district}\n\n"
 
         response += "Type # to go to main menu: \n"
-
+        clean_db(session_id)
+        
         return response
       end
 
     end
+  end
+
+  def existing_client_workflow(latest_user_menu, user_log, last_response, phone_number, session_id)
+
+    unless latest_user_menu.blank?
+      menu = latest_user_menu.menu
+
+      if menu.name.match(/EXIT/i)
+        response = "END Sesssion terminated"
+        latest_user_menu.delete
+        return response
+      end
+
+      if menu.name.match(/CLAIMS/i)
+        response  = "CON Welcome to Claims Menu. \n\n\n";
+        return response
+      end
+
+      if menu.name.match(/DEPENDANTS/i)
+        response  = "CON Welcome to Dependants Menu. \n\n\n";
+        return response
+      end
+
+      if menu.name.match(/PAYMENTS/i)
+        response  = "CON Welcome to Payments Menu. \n\n\n";
+        return response
+      end
+      
+    end
+
   end
 
 end
