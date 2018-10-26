@@ -309,7 +309,7 @@ class UssdController < ApplicationController
   def existing_client_workflow(latest_user_menu, user_log, last_response, phone_number, session_id)
     unless latest_user_menu.blank?
       menu = latest_user_menu.main_menu
-      raise menu.name.inspect
+
       if menu.name.match(/EXIT/i)
         response = "END Sesssion terminated"
         latest_user_menu.delete
