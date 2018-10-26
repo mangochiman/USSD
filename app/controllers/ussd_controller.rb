@@ -72,18 +72,34 @@ class UssdController < ApplicationController
       user_parent_menu = UserParentMenu.where(["user_id =?", session_id]).last
 
       if user_parent_menu.blank?
-
-        #if last_response.to_s == "1"
         user_parent_menu = UserParentMenu.new
         user_parent_menu.user_id = session_id
         user_parent_menu.save
-        #end
-
         response  = "CON Welcome #{member.name} to Wella Insurance Services. Select action \n";
 
         response += "0. My Account\n"
         response += "1. Exit\n"
         render :text => response and return
+      end
+
+      unless user_parent_menu.blank?
+        if main_latest_user_menu.blank?
+
+          response  = "My account. Select action \n";
+
+          count = 1
+          main_menu.each do |name|
+            response += "#{count}. #{name} \n"
+            count += 1
+          end
+
+          main_user_menu = MainUserMenu.new
+          main_user_menu.user_id = session_id
+          main_user_menu.main_menu_id = menu.main_menu_id
+          main_user_menu.save if last_response.to_s != "0"
+
+          render :text => response and return if response
+        end
       end
       
       unless user_parent_menu.blank?
