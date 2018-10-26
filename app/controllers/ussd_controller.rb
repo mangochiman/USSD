@@ -71,6 +71,20 @@ class UssdController < ApplicationController
       main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
       user_parent_menu = UserParentMenu.where(["user_id =?", session_id]).last
 
+      if user_parent_menu.blank?
+
+        if last_response.to_s == "1"
+          user_parent_menu = UserParentMenu.new
+          user_parent_menu.user_id = session_id
+          user_parent_menu.save
+        end
+
+        response  = "CON Welcome #{member.name} to Wella Insurance Services. Select action \n";
+
+        response += "1. My Account\n"
+        response += "2. Exit\n"
+      end
+      
       unless user_parent_menu.blank?
         if main_latest_user_menu.blank?
 
@@ -101,21 +115,6 @@ class UssdController < ApplicationController
           render :text => response and return if response
         end
       end
-      
-      if user_parent_menu.blank?
-        
-        if last_response.to_s == "1"
-          user_parent_menu = UserParentMenu.new
-          user_parent_menu.user_id = session_id
-          user_parent_menu.save
-        end
-        
-        response  = "CON Welcome #{member.name} to Wella Insurance Services. Select action \n";
-
-        response += "1. My Account\n"
-        response += "2. Exit\n"
-      end
-
       render :text => response and return if response
       
     end
