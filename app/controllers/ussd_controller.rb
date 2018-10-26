@@ -12,6 +12,7 @@ class UssdController < ApplicationController
     text        = params["text"]
 
     menu = Menu.order("menu_number").map(&:name)
+    main_menu = MainMenu.order("menu_number").map(&:name)
 
     if text.split("*").include?("#")
       if text.split("*").last == "#"
@@ -70,29 +71,24 @@ class UssdController < ApplicationController
       main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
       user_parent_menu = UserParentMenu.where(["user_id =?", session_id]).last
 
-      if user_parent_menu.blank?
-        
-        if last_response.to_s == "1"
-          user_parent_menu = UserParentMenu.new
-          user_parent_menu.user_id = session_id
-          user_parent_menu.save
-        end
-        
-        if last_response.to_s == "2"
-          response = "END Sesssion terminated"
-          render :text => response
-        end
-      end
-
       unless user_parent_menu.blank?
         if main_latest_user_menu.blank?
+
+          response  = "My account. Select action \n";
+
+          count = 1
+          main_menu.each do |name|
+            response += "#{count}. #{name} \n"
+            count += 1
+          end
+
           menu = MainMenu.where(["menu_number =?", last_response]).last
 
           unless menu.blank?
             main_user_menu = MainUserMenu.new
             main_user_menu.user_id = session_id
             main_user_menu.main_menu_id = menu.main_menu_id
-            main_user_menu.save
+            main_user_menu.save #initial
           end
 
           main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
@@ -105,17 +101,26 @@ class UssdController < ApplicationController
           render :text => response and return if response
         end
       end
+      
+      if user_parent_menu.blank?
+        
+        if last_response.to_s == "1"
+          user_parent_menu = UserParentMenu.new
+          user_parent_menu.user_id = session_id
+          user_parent_menu.save
+        end
+        
+        response  = "CON Welcome #{member.name} to Wella Insurance Services. Select action \n";
 
-      response  = "CON Welcome #{member.name} to Wella Insurance Services. Select action \n";
-
-      response += "1. My Account\n"
-      response += "2. Exit\n"
+        response += "1. My Account\n"
+        response += "2. Exit\n"
+      end
 
       render :text => response and return if response
       
     end
 
-    render :text => response
+    render :text => response and return
   end
 
   def first_level_ussd_menu_hash
