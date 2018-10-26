@@ -68,14 +68,6 @@ class UssdController < ApplicationController
 
     ############# Existing member #####
     unless member.blank?
-      if last_response.to_s == "#"
-        data = MainUserMenu.where(["user_id =?", session_id])
-        unless data.blank?
-          data.each do |d|
-            d.delete
-          end
-        end
-      end
 
       main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
       user_parent_menu = UserParentMenu.where(["user_id =?", session_id]).last
