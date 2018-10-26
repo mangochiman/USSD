@@ -106,41 +106,16 @@ class UssdController < ApplicationController
           if last_response.to_s == 1
             response  = "END Session terminated";
           end
-          
-          render :text => response and return if response
-        end
-      end
-      
-      unless user_parent_menu.blank?
-        if main_latest_user_menu.blank?
-
-          response  = "My account. Select action \n";
-
-          count = 1
-          main_menu.each do |name|
-            response += "#{count}. #{name} \n"
-            count += 1
-          end
-
-          menu = MainMenu.where(["menu_number =?", last_response]).last
-
-          unless menu.blank?
-            main_user_menu = MainUserMenu.new
-            main_user_menu.user_id = session_id
-            main_user_menu.main_menu_id = menu.main_menu_id
-            main_user_menu.save if last_response.to_s != "0"
-          end
 
           main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
           unless main_latest_user_menu.blank?
             response = existing_client_workflow(latest_user_menu, user_log, last_response, phone_number, session_id)
             render :text => response and return if response
           end
-        else
-          response = existing_client_workflow(latest_user_menu, user_log, last_response, phone_number, session_id)
           render :text => response and return if response
         end
       end
+      
       render :text => response and return if response
       
     end
@@ -332,7 +307,7 @@ class UssdController < ApplicationController
   end
 
   def existing_client_workflow(latest_user_menu, user_log, last_response, phone_number, session_id)
-
+  raise params.inspect
     unless latest_user_menu.blank?
       menu = latest_user_menu.menu
 
