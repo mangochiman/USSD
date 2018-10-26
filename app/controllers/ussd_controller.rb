@@ -108,13 +108,18 @@ class UssdController < ApplicationController
           end
 
           main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
-          if last_response.to_s != "#"
-            unless main_latest_user_menu.blank?
-              response = existing_client_workflow(main_latest_user_menu, user_log, last_response, phone_number, session_id)
-              render :text => response and return if response
-            end
+          unless main_latest_user_menu.blank?
+            response = existing_client_workflow(main_latest_user_menu, user_log, last_response, phone_number, session_id)
+            render :text => response and return if response
           end
           render :text => response and return if response
+        end
+      else
+        if last_response.to_s == "#"
+          main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
+          main_latest_user_menu.delete
+        else
+          response  = "END Session terminated. Good bye #{member.name}. We are still working on the project. We will come back";
         end
       end
       
