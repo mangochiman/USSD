@@ -320,8 +320,8 @@ class UssdController < ApplicationController
         response  = "CON Welcome to Claims Menu. \n\n\n";
         sub_menus = menu.main_sub_menus
         count = 1
-        sub_menus.each do |name|
-          response += "#{count}. #{name} \n"
+        sub_menus.each do |sub_menu|
+          response += "#{count}. #{sub_menu.name} \n"
           count += 1
         end
         response += "\n Type # to go to Main menu"
@@ -333,11 +333,12 @@ class UssdController < ApplicationController
         response  = "CON Welcome to Dependants Menu. \n\n\n";
         sub_menus = menu.main_sub_menus
         count = 1
-        sub_menus.each do |name|
-          response += "#{count}. #{name} \n"
+        sub_menus.each do |sub_menu|
+          response += "#{count}. #{sub_menu.name} \n"
           count += 1
         end
         response += "\n Type # to go to Main menu"
+
         return response
       end
 
@@ -345,11 +346,12 @@ class UssdController < ApplicationController
         response  = "CON Welcome to Payments Menu. \n\n\n";
         sub_menus = menu.main_sub_menus
         count = 1
-        sub_menus.each do |name|
-          response += "#{count}. #{name} \n"
+        sub_menus.each do |sub_menu|
+          response += "#{count}. #{sub_menu.name} \n"
           count += 1
         end
         response += "\n Type # to go to Main menu"
+
         return response
       end
       
