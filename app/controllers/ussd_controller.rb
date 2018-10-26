@@ -113,6 +113,8 @@ class UssdController < ApplicationController
           unless main_latest_user_menu.blank?
             response = existing_client_workflow(main_latest_user_menu, user_log, last_response, phone_number, session_id)
             render :text => response and return if response
+          else
+            response = existing_client_workflow(main_latest_user_menu, user_log, last_response, phone_number, session_id)
           end
           render :text => response and return if response
         end
