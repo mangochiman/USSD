@@ -318,16 +318,36 @@ class UssdController < ApplicationController
 
       if menu.name.match(/CLAIMS/i)
         response  = "CON Welcome to Claims Menu. \n\n\n";
+        count = 1
+        sub_menus = menu.main_sub_menus
+        sub_menus.each do |name|
+          response += "#{count}. #{name} \n"
+          count += 1
+        end
+        response += "\n Type # to go to Main menu"
+     
         return response
       end
 
       if menu.name.match(/DEPENDANTS/i)
         response  = "CON Welcome to Dependants Menu. \n\n\n";
+        sub_menus = menu.main_sub_menus
+        sub_menus.each do |name|
+          response += "#{count}. #{name} \n"
+          count += 1
+        end
+        response += "\n Type # to go to Main menu"
         return response
       end
 
       if menu.name.match(/PAYMENTS/i)
         response  = "CON Welcome to Payments Menu. \n\n\n";
+        sub_menus = menu.main_sub_menus
+        sub_menus.each do |name|
+          response += "#{count}. #{name} \n"
+          count += 1
+        end
+        response += "\n Type # to go to Main menu"
         return response
       end
       
