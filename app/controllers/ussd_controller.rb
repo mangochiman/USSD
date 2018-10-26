@@ -73,11 +73,11 @@ class UssdController < ApplicationController
 
       if user_parent_menu.blank?
 
-        if last_response.to_s == "1"
-          user_parent_menu = UserParentMenu.new
-          user_parent_menu.user_id = session_id
-          user_parent_menu.save
-        end
+        #if last_response.to_s == "1"
+        user_parent_menu = UserParentMenu.new
+        user_parent_menu.user_id = session_id
+        user_parent_menu.save
+        #end
 
         response  = "CON Welcome #{member.name} to Wella Insurance Services. Select action \n";
 
