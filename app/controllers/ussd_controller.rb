@@ -93,6 +93,11 @@ class UssdController < ApplicationController
             count += 1
           end
 
+          if last_response.to_s == "2"
+            response  = "END Session terminated"
+            render :text => response and return
+          end
+          
           if last_response.to_s != "1"
             menu = MainMenu.where(["menu_number =?", last_response]).last
             unless menu.blank?
@@ -103,15 +108,13 @@ class UssdController < ApplicationController
             end
           end
 
-          if last_response.to_s == "2"
-            response  = "END Session terminated"
-            render :text => response and return
-          end
-
           main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
           unless main_latest_user_menu.blank?
             response = existing_client_workflow(main_latest_user_menu, user_log, last_response, phone_number, session_id)
             render :text => response and return if response
+          else
+            response  = "END Session terminated. Invalid option"
+            render :text => response and return
           end
           render :text => response and return if response
         end
