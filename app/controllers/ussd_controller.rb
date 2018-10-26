@@ -104,7 +104,8 @@ class UssdController < ApplicationController
           end
 
           if last_response.to_s == "2"
-            response  = "END Session terminated";
+            response  = "END Session terminated"
+            render :text => response and return
           end
 
           main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
