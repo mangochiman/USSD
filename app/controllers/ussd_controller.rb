@@ -77,8 +77,8 @@ class UssdController < ApplicationController
         user_parent_menu.save
         response  = "CON Welcome #{member.name} to Wella Insurance Services. Select action \n";
 
-        response += "0. My Account\n"
-        response += "1. Exit\n"
+        response += "1. My Account\n"
+        response += "2. Exit\n"
         render :text => response and return
       end
 
@@ -93,7 +93,7 @@ class UssdController < ApplicationController
             count += 1
           end
 
-          if last_response.to_s != "0"
+          if last_response.to_s != "1"
             menu = MainMenu.where(["menu_number =?", last_response]).last
             unless menu.blank?
               main_user_menu = MainUserMenu.new
@@ -103,14 +103,16 @@ class UssdController < ApplicationController
             end
           end
 
-          if last_response.to_s == 1
+          if last_response.to_s == "2"
             response  = "END Session terminated";
           end
 
           main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
-          unless main_latest_user_menu.blank?
-            response = existing_client_workflow(main_latest_user_menu, user_log, last_response, phone_number, session_id)
-            render :text => response and return if response
+          if last_response.to_s != "#"
+            unless main_latest_user_menu.blank?
+              response = existing_client_workflow(main_latest_user_menu, user_log, last_response, phone_number, session_id)
+              render :text => response and return if response
+            end
           end
           render :text => response and return if response
         end
@@ -317,7 +319,7 @@ class UssdController < ApplicationController
       end
 
       if menu.name.match(/CLAIMS/i)
-        response  = "CON Welcome to Claims Menu. \n";
+        response  = "CON Welcome to Claims Menu. \n\n";
         sub_menus = menu.main_sub_menus
         count = 1
         sub_menus.each do |sub_menu|
@@ -330,7 +332,7 @@ class UssdController < ApplicationController
       end
 
       if menu.name.match(/DEPENDANTS/i)
-        response  = "CON Welcome to Dependants Menu. \n";
+        response  = "CON Welcome to Dependants Menu. \n\n";
         sub_menus = menu.main_sub_menus
         count = 1
         sub_menus.each do |sub_menu|
@@ -343,7 +345,7 @@ class UssdController < ApplicationController
       end
 
       if menu.name.match(/PAYMENTS/i)
-        response  = "CON Welcome to Payments Menu. \n";
+        response  = "CON Welcome to Payments Menu. \n\n";
         sub_menus = menu.main_sub_menus
         count = 1
         sub_menus.each do |sub_menu|
