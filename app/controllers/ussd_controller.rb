@@ -85,7 +85,7 @@ class UssdController < ApplicationController
       unless user_parent_menu.blank?
         if main_latest_user_menu.blank?
 
-          response  = "My account. Select action \n";
+          response  = "CON My account. Select action \n";
 
           count = 1
           main_menu.each do |name|
@@ -93,11 +93,20 @@ class UssdController < ApplicationController
             count += 1
           end
 
-          main_user_menu = MainUserMenu.new
-          main_user_menu.user_id = session_id
-          main_user_menu.main_menu_id = menu.main_menu_id
-          main_user_menu.save if last_response.to_s != "0"
+          if last_response.to_s != "0"
+            menu = MainMenu.where(["menu_number =?", last_response]).last
+            unless menu.blank?
+              main_user_menu = MainUserMenu.new
+              main_user_menu.user_id = session_id
+              main_user_menu.main_menu_id = menu.main_menu_id
+              main_user_menu.save
+            end
+          end
 
+          if last_response.to_s == 1
+            response  = "END Session terminated";
+          end
+          
           render :text => response and return if response
         end
       end
