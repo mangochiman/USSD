@@ -81,8 +81,8 @@ class UssdController < ApplicationController
 
         response  = "CON Welcome #{member.name} to Wella Insurance Services. Select action \n";
 
-        response += "1. My Account\n"
-        response += "2. Exit\n"
+        response += "0. My Account\n"
+        response += "1. Exit\n"
         render :text => response and return
       end
       
@@ -103,7 +103,7 @@ class UssdController < ApplicationController
             main_user_menu = MainUserMenu.new
             main_user_menu.user_id = session_id
             main_user_menu.main_menu_id = menu.main_menu_id
-            main_user_menu.save #initial
+            main_user_menu.save if last_response.to_s != "0"
           end
 
           main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
