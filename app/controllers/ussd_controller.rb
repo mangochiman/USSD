@@ -83,7 +83,7 @@ class UssdController < ApplicationController
 
         response += "1. My Account\n"
         response += "2. Exit\n"
-        render :text => response
+        render :text => response and return
       end
       
       unless user_parent_menu.blank?
