@@ -283,7 +283,7 @@ class UssdController < ApplicationController
     end
   end
 
-  def existing_client_workflow(latest_user_menu, user_log, last_response, phone_number, session_id)
+  def existing_client_workflow(latest_user_menu, main_user_log, last_response, phone_number, session_id)
 
     unless latest_user_menu.blank?
       menu = latest_user_menu.main_menu
@@ -293,17 +293,18 @@ class UssdController < ApplicationController
       new_dependant_sub_menu = MainSubMenu.find_by_name("New dependant")
       view_dependant_sub_menu = MainSubMenu.find_by_name("View dependants")
       remove_dependant_sub_menu = MainSubMenu.find_by_name("Remove dependants")
-
-      
       main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
-
-
+      
       if main_seen_status.blank?
-        main_seen_status = SeenStatus.new
+        main_seen_status = MainSeenStatus.new
         main_seen_status.user_id = session_id
         main_seen_status.save
       end
 
+      fullname_asked = (main_seen_status.name == true)
+      gender_asked = (main_seen_status.gender == true)
+      district_asked = (main_seen_status.district == true)
+      
       if menu.name.match(/EXIT/i)
         response = "END Sesssion terminated"
         latest_user_menu.delete
@@ -312,14 +313,21 @@ class UssdController < ApplicationController
 
       if menu.name.match(/DEPENDANT/i)
         fullname_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
-        gender_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
-        current_district_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
-        new_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, new_dependant_sub_menu.id]).last
-        view_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, view_dependant_sub_menu.id]).last
-        remove_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, remove_dependant_sub_menu.id]).last
+        #gender_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
+        #current_district_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
+        #new_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, new_dependant_sub_menu.id]).last
+        #view_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, view_dependant_sub_menu.id]).last
+        #remove_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, remove_dependant_sub_menu.id]).last
         #MainSubMenu
 
-        dependant_menu = DependantMenu.where(["dependant_menu_id", session_id, last_response]).last
+        dependant_menu = DependantMenu.where(["dependant_menu_id =?", last_response]).last
+        unless dependant_menu.blank?
+          dependant_menu = DependantMenu.new
+          dependant_menu.user_id = session_id
+          dependant_menu.menu_id = menu.main_menu_id
+          dependant_menu.save
+        end
+
         unless dependant_menu.blank?
           if dependant_menu.name.match(/NEW DEPENDANT/i)
             user_dependant_menu = UserDependantMenu.where(["user_id =? AND dependant_menu_id =?", session_id, dependant_menu.dependant_menu_id]).last
@@ -329,6 +337,37 @@ class UssdController < ApplicationController
               user_dependant_menu.dependant_menu_id = dependant_menu.dependant_menu_id
               user_dependant_menu.save
             end
+
+            if fullname_answer.blank? && !fullname_asked
+              response  = "CON Registration: \n Please enter your full name\n"
+              main_seen_status.name = true
+              main_seen_status.save
+
+              fullname_answer = MainUserMenu.new
+              fullname_answer.user_id = session_id
+              fullname_answer.menu_id = menu.menu_id
+              fullname_answer.sub_menu_id = full_name_sub_menu.id
+              fullname_answer.save
+
+              return response
+            else
+              if (params[:text].last == "*")
+                main_seen_status.name = false
+                main_seen_status.save
+                fullname_answer.delete
+
+                response  = "CON Name can not be blank: \n\n"
+                response += "Press any key to go to name input"
+                return response
+              end
+
+              if main_user_log.name.blank?
+                main_user_log.name = params[:text].split("*").last
+                main_user_log.save
+              end
+            end
+
+            return response
 
           end
         end
