@@ -23,15 +23,22 @@ class UssdController < ApplicationController
     
     member = Member.find_by_phone_number(phone_number)
     latest_user_menu = UserMenu.where(["user_id =?", session_id]).last
-    #menu_number = params["text"].split("*").last
+    main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
     last_response = params["text"].split("*").last
 
     user_log = UserLog.where(["user_id =?", session_id]).last
+    main_user_log = MainUserLog.where(["user_id =?", session_id]).last
 
     if user_log.blank?
       user_log = UserLog.new
       user_log.user_id = session_id
       user_log.save
+    end
+
+    if main_user_log.blank?
+      main_user_log = MainUserLog.new
+      main_user_log.user_id = session_id
+      main_user_log.save
     end
     
     if member.blank?
@@ -69,73 +76,38 @@ class UssdController < ApplicationController
     ############# Existing member #####
     unless member.blank?
 
-      main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
-      user_parent_menu = UserParentMenu.where(["user_id =?", session_id]).last
+      if main_latest_user_menu.blank?
+        response  = "CON Welcome #{member.name} to Wella Funeral Services. Select action \n";
 
-      if user_parent_menu.blank?
-        user_parent_menu = UserParentMenu.new
-        user_parent_menu.user_id = session_id
-        user_parent_menu.save
-        response  = "CON Welcome #{member.name} to Wella Insurance Services. Select action \n";
+        count = 1
+        main_menu.each do |name|
+          response += "#{count}. #{name} \n"
+          count += 1
+        end
 
-        response += "1. My Account\n"
-        response += "2. Exit\n"
-        render :text => response and return
-      end
+        main_menu = MainMenu.where(["menu_number =?", last_response]).last
 
-      unless user_parent_menu.blank?
-        if main_latest_user_menu.blank?
+        unless main_menu.blank?
+          main_user_menu = MainUserMenu.new
+          main_user_menu.user_id = session_id
+          main_user_menu.menu_id = menu.main_menu_id
+          main_user_menu.save
+        end
 
-          response  = "CON My account. Select action \n";
-
-          count = 1
-          main_menu.each do |name|
-            response += "#{count}. #{name} \n"
-            count += 1
-          end
-
-          if last_response.to_s == "2"
-            response  = "END Session terminated"
-            render :text => response and return
-          end
-          
-          if last_response.to_s != "1"
-            menu = MainMenu.where(["menu_number =?", last_response]).last
-            unless menu.blank?
-              main_user_menu = MainUserMenu.new
-              main_user_menu.user_id = session_id
-              main_user_menu.main_menu_id = menu.main_menu_id
-              main_user_menu.save
-            end
-          end
-
-          main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
-          unless main_latest_user_menu.blank?
-            response = existing_client_workflow(main_latest_user_menu, user_log, last_response, phone_number, session_id)
-            render :text => response and return if response
-          end
-          #render :text => response and return if response
-        else
-          response = existing_client_workflow(main_latest_user_menu, user_log, last_response, phone_number, session_id)
+        main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
+        unless main_latest_user_menu.blank?
+          response = existing_client_workflow(main_latest_user_menu, main_user_log, last_response, phone_number, session_id)
           render :text => response and return if response
         end
+      else
+        response = existing_client_workflow(main_latest_user_menu, main_user_log, last_response, phone_number, session_id)
+        render :text => response and return if response
       end
-      
-      render :text => response and return if response
       
     end
 
     render :text => response and return
   end
-
-  def first_level_ussd_menu_hash
-    data = {
-      "1" => "My account",
-      "2" => "Exit"
-    }
-    return data
-  end
-
 
   def clean_db(session_id)
 
@@ -312,8 +284,25 @@ class UssdController < ApplicationController
   end
 
   def existing_client_workflow(latest_user_menu, user_log, last_response, phone_number, session_id)
+
     unless latest_user_menu.blank?
       menu = latest_user_menu.main_menu
+      full_name_sub_menu = MainSubMenu.find_by_name("Full name")
+      gender_sub_menu = MainSubMenu.find_by_name("gender")
+      current_district_sub_menu = MainSubMenu.find_by_name("District")
+      new_dependant_sub_menu = MainSubMenu.find_by_name("New dependant")
+      view_dependant_sub_menu = MainSubMenu.find_by_name("View dependants")
+      remove_dependant_sub_menu = MainSubMenu.find_by_name("Remove dependants")
+
+      
+      main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
+
+
+      if main_seen_status.blank?
+        main_seen_status = SeenStatus.new
+        main_seen_status.user_id = session_id
+        main_seen_status.save
+      end
 
       if menu.name.match(/EXIT/i)
         response = "END Sesssion terminated"
@@ -321,45 +310,34 @@ class UssdController < ApplicationController
         return response
       end
 
-      if menu.name.match(/CLAIMS/i)
-        response  = "CON Welcome to Claims Menu. \n\n";
-        sub_menus = menu.main_sub_menus
-        count = 1
-        sub_menus.each do |sub_menu|
-          response += "#{count}. #{sub_menu.name} \n"
-          count += 1
+      if menu.name.match(/DEPENDANT/i)
+        fullname_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
+        gender_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
+        current_district_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
+        new_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, new_dependant_sub_menu.id]).last
+        view_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, view_dependant_sub_menu.id]).last
+        remove_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, remove_dependant_sub_menu.id]).last
+        #MainSubMenu
+
+        dependant_menu = DependantMenu.where(["dependant_menu_id", session_id, last_response]).last
+        unless dependant_menu.blank?
+          if dependant_menu.name.match(/NEW DEPENDANT/i)
+            user_dependant_menu = UserDependantMenu.where(["user_id =? AND dependant_menu_id =?", session_id, dependant_menu.dependant_menu_id]).last
+            if user_dependant_menu.blank?
+              user_dependant_menu = UserDependantMenu.new
+              user_dependant_menu.user_id = session_id
+              user_dependant_menu.dependant_menu_id = dependant_menu.dependant_menu_id
+              user_dependant_menu.save
+            end
+
+          end
         end
-        response += "\n Type # to go to Main menu"
-     
-        return response
+
+        reponse = "CON Unknown option selected. Press any key to continue"
+        return reponse
+
       end
 
-      if menu.name.match(/DEPENDANTS/i)
-        response  = "CON Welcome to Dependants Menu. \n\n";
-        sub_menus = menu.main_sub_menus
-        count = 1
-        sub_menus.each do |sub_menu|
-          response += "#{count}. #{sub_menu.name} \n"
-          count += 1
-        end
-        response += "\n Type # to go to Main menu"
-
-        return response
-      end
-
-      if menu.name.match(/PAYMENTS/i)
-        response  = "CON Welcome to Payments Menu. \n\n";
-        sub_menus = menu.main_sub_menus
-        count = 1
-        sub_menus.each do |sub_menu|
-          response += "#{count}. #{sub_menu.name} \n"
-          count += 1
-        end
-        response += "\n Type # to go to Main menu"
-
-        return response
-      end
-      
     end
 
   end

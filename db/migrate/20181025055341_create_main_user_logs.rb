@@ -6,6 +6,7 @@ class CreateMainUserLogs < ActiveRecord::Migration
       t.string :gender
       t.string :name
       t.string :district
+      t.string :dependant
       t.timestamps null: false
     end
   end

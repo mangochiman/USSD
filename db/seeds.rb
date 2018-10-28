@@ -50,3 +50,14 @@ main_menu.each do |key, values|
     sm.save
   end
 end
+
+dependant_menu = [[1, "New dependant"], [2, "Remove dependants"], [3, "View dependants"]]
+dependant_menu.each do |menu|
+  menu_number = menu[0]
+  menu_name = menu[1]
+
+  new_dependant_menu = DependantMenu.new
+  new_dependant_menu.menu_number = menu_number
+  new_dependant_menu.name = menu_name
+  new_dependant_menu.save
+end
