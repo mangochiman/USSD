@@ -90,7 +90,7 @@ class UssdController < ApplicationController
         unless main_menu_response.blank?
           main_user_menu = MainUserMenu.new
           main_user_menu.user_id = session_id
-          main_user_menu.menu_id = main_menu_response.main_menu_id
+          main_user_menu.main_menu_id = main_menu_response.main_menu_id
           main_user_menu.save
         end
 
