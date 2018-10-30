@@ -312,7 +312,7 @@ class UssdController < ApplicationController
       end
 
       if menu.name.match(/DEPENDANT/i)
-        fullname_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
+        #fullname_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
         #gender_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
         #current_district_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
         #new_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, new_dependant_sub_menu.id]).last
