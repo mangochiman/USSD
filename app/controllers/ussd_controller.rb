@@ -333,6 +333,16 @@ class UssdController < ApplicationController
             main_seen_status.dependant = true
             main_seen_status
           end
+        else
+          response  = "CON Dependant Menu. Select action \n";
+
+          count = 1
+          main_sub_menus = menu.main_sub_menus.collect{|msm|msm.name}
+          main_sub_menus.each do |name|
+            response += "#{count}. #{name} \n"
+            count += 1
+          end
+          return response and return
         end
 
         user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
