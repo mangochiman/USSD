@@ -330,9 +330,6 @@ class UssdController < ApplicationController
             count += 1
           end
 
-          return response  
-
-        else
           dependant_menu = DependantMenu.where(["dependant_menu_id =?", last_response]).last
           unless dependant_menu.blank?
             user_dependant_menu = UserDependantMenu.new
@@ -343,10 +340,13 @@ class UssdController < ApplicationController
             main_seen_status.dependant = true
             main_seen_status
           end
+          
+          return response
         end
-=begin
-        user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
 
+        user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
+        raise user_dependant_menu.dependent_menu.inspect
+=begin
         unless user_dependant_menu.blank?
           if user_dependant_menu.name.match(/NEW DEPENDANT/i)
             user_dependant_menu = UserDependantMenu.where(["user_id =? AND dependant_menu_id =?", session_id, dependant_menu.dependant_menu_id]).last
