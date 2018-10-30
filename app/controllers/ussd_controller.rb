@@ -85,12 +85,12 @@ class UssdController < ApplicationController
           count += 1
         end
 
-        main_menu = MainMenu.where(["menu_number =?", last_response]).last
+        main_menu_response = MainMenu.where(["menu_number =?", last_response]).last
 
-        unless main_menu.blank?
+        unless main_menu_response.blank?
           main_user_menu = MainUserMenu.new
           main_user_menu.user_id = session_id
-          main_user_menu.menu_id = menu.main_menu_id
+          main_user_menu.menu_id = main_menu_response.main_menu_id
           main_user_menu.save
         end
 
