@@ -326,6 +326,16 @@ class UssdController < ApplicationController
           dependant_menu.user_id = session_id
           dependant_menu.menu_id = menu.main_menu_id
           dependant_menu.save
+        else
+          response  = "CON Dependant Menu. Select action \n";
+
+          count = 1
+          main_sub_menus = menu.main_sub_menus.collect{|msm|msm.name}
+          main_sub_menus.each do |name|
+            response += "#{count}. #{name} \n"
+            count += 1
+          end
+          render :text => response and return
         end
 
         unless dependant_menu.blank?
