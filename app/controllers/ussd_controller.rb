@@ -304,6 +304,7 @@ class UssdController < ApplicationController
       fullname_asked = (main_seen_status.name == true)
       gender_asked = (main_seen_status.gender == true)
       district_asked = (main_seen_status.district == true)
+      dependant_menu_asked = (main_seen_status.dependant == true)
       
       if menu.name.match(/EXIT/i)
         response = "END Sesssion terminated"
@@ -320,26 +321,24 @@ class UssdController < ApplicationController
         #remove_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, remove_dependant_sub_menu.id]).last
         #MainSubMenu
 
-        dependant_menu = DependantMenu.where(["dependant_menu_id =?", last_response]).last
-        unless dependant_menu.blank?
-          dependant_menu = DependantMenu.new
-          dependant_menu.user_id = session_id
-          dependant_menu.menu_id = menu.main_menu_id
-          dependant_menu.save
-        else
-          response  = "CON Dependant Menu. Select action \n";
+        if !dependant_menu_asked
 
-          count = 1
-          main_sub_menus = menu.main_sub_menus.collect{|msm|msm.name}
-          main_sub_menus.each do |name|
-            response += "#{count}. #{name} \n"
-            count += 1
+          dependant_menu = DependantMenu.where(["dependant_menu_id =?", last_response]).last
+          unless dependant_menu.blank?
+            user_dependant_menu = UserDependantMenu.new
+            user_dependant_menu.user_id = session_id
+            user_dependant_menu.dependant_menu_id = dependant_menu.dependant_menu_id
+            user_dependant_menu.save
+          
+            main_seen_status.dependant = true
+            main_seen_status
           end
-          render :text => response and return
         end
 
-        unless dependant_menu.blank?
-          if dependant_menu.name.match(/NEW DEPENDANT/i)
+        user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
+
+        unless user_dependant_menu.blank?
+          if user_dependant_menu.name.match(/NEW DEPENDANT/i)
             user_dependant_menu = UserDependantMenu.where(["user_id =? AND dependant_menu_id =?", session_id, dependant_menu.dependant_menu_id]).last
             if user_dependant_menu.blank?
               user_dependant_menu = UserDependantMenu.new
@@ -380,6 +379,16 @@ class UssdController < ApplicationController
             return response
 
           end
+        else
+          response  = "CON Dependant Menu. Select action \n";
+
+          count = 1
+          main_sub_menus = menu.main_sub_menus.collect{|msm|msm.name}
+          main_sub_menus.each do |name|
+            response += "#{count}. #{name} \n"
+            count += 1
+          end
+          render response and return
         end
 
         reponse = "CON Unknown option selected. Press any key to continue"
