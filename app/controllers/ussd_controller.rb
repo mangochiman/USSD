@@ -322,30 +322,29 @@ class UssdController < ApplicationController
         #MainSubMenu
 
         if !dependant_menu_asked
-
-          dependant_menu = DependantMenu.where(["dependant_menu_id =?", last_response]).last
-          unless dependant_menu.blank?
-            user_dependant_menu = UserDependantMenu.new
-            user_dependant_menu.user_id = session_id
-            user_dependant_menu.dependant_menu_id = dependant_menu.dependant_menu_id
-            user_dependant_menu.save
-          
-            main_seen_status.dependant = true
-            main_seen_status
-          end
-        else
-          response  = "CON Dependant Menu. Select action \n";
-
+          response  = "CON Dependant Menu. Select action \n"
           count = 1
           main_sub_menus = menu.main_sub_menus.collect{|msm|msm.name}
           main_sub_menus.each do |name|
             response += "#{count}. #{name} \n"
             count += 1
           end
-          
-          return response 
-        end
 
+          return response  
+
+        else
+          dependant_menu = DependantMenu.where(["dependant_menu_id =?", last_response]).last
+          unless dependant_menu.blank?
+            user_dependant_menu = UserDependantMenu.new
+            user_dependant_menu.user_id = session_id
+            user_dependant_menu.dependant_menu_id = dependant_menu.dependant_menu_id
+            user_dependant_menu.save
+
+            main_seen_status.dependant = true
+            main_seen_status
+          end
+        end
+=begin
         user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
 
         unless user_dependant_menu.blank?
@@ -404,7 +403,7 @@ class UssdController < ApplicationController
 
         reponse = "CON Unknown option selected. Press any key to continue"
         return reponse
-
+=end
       end
 
     end
