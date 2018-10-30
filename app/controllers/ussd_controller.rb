@@ -342,7 +342,8 @@ class UssdController < ApplicationController
             response += "#{count}. #{name} \n"
             count += 1
           end
-          return response and return
+          
+          return response 
         end
 
         user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
