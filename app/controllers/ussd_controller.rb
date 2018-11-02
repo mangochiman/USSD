@@ -291,9 +291,6 @@ class UssdController < ApplicationController
       gender_sub_menu = SubMenu.find_by_name("gender")
       current_district_sub_menu = SubMenu.find_by_name("District")
       
-      new_dependant_sub_menu = MainSubMenu.find_by_name("New dependant")
-      view_dependant_sub_menu = MainSubMenu.find_by_name("View dependants")
-      remove_dependant_sub_menu = MainSubMenu.find_by_name("Remove dependants")
       main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
       
       if main_seen_status.blank?
@@ -314,9 +311,9 @@ class UssdController < ApplicationController
       end
 
       if menu.name.match(/DEPENDANT/i)
-        fullname_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
-        gender_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
-        current_district_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
+        fullname_answer = MainUserMenu.where(["user_id =? AND main_sub_menu_id =?", session_id, full_name_sub_menu.id]).last
+        gender_answer = MainUserMenu.where(["user_id =? AND main_sub_menu_id =?", session_id, gender_sub_menu.id]).last
+        current_district_answer = MainUserMenu.where(["user_id =? AND main_sub_menu_id =?", session_id, current_district_sub_menu.id]).last
 
         if dependant_menu_asked
           user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
@@ -332,7 +329,7 @@ class UssdController < ApplicationController
 
                 fullname_answer = MainUserMenu.new
                 fullname_answer.user_id = session_id
-                fullname_answer.main_menu_id = menu.menu_id
+                fullname_answer.main_menu_id = menu.main_menu_id
                 fullname_answer.main_sub_menu_id = full_name_sub_menu.id
                 fullname_answer.save
 
@@ -368,7 +365,7 @@ class UssdController < ApplicationController
 
               gender_answer = MainUserMenu.new
               gender_answer.user_id = session_id
-              gender_answer.main_menu_id = menu.menu_id
+              gender_answer.main_menu_id = menu.main_menu_id
               gender_answer.main_sub_menu_id = gender_sub_menu.id
               gender_answer.save
 
@@ -414,7 +411,7 @@ class UssdController < ApplicationController
 
               current_district_answer = MainUserMenu.new
               current_district_answer.user_id = session_id
-              current_district_answer.main_menu_id = menu.menu_id
+              current_district_answer.main_menu_id = menu.main_menu_id
               current_district_answer.main_sub_menu_id = current_district_sub_menu.id
               current_district_answer.save
 
@@ -482,66 +479,6 @@ class UssdController < ApplicationController
           return response
         end
 
-        #user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
-        #raise user_dependant_menu.dependent_menu.inspect
-=begin
-        unless user_dependant_menu.blank?
-          if user_dependant_menu.name.match(/NEW DEPENDANT/i)
-            user_dependant_menu = UserDependantMenu.where(["user_id =? AND dependant_menu_id =?", session_id, dependant_menu.dependant_menu_id]).last
-            if user_dependant_menu.blank?
-              user_dependant_menu = UserDependantMenu.new
-              user_dependant_menu.user_id = session_id
-              user_dependant_menu.dependant_menu_id = dependant_menu.dependant_menu_id
-              user_dependant_menu.save
-            end
-
-            if fullname_answer.blank? && !fullname_asked
-              response  = "CON Registration: \n Please enter your full name\n"
-              main_seen_status.name = true
-              main_seen_status.save
-
-              fullname_answer = MainUserMenu.new
-              fullname_answer.user_id = session_id
-              fullname_answer.menu_id = menu.menu_id
-              fullname_answer.sub_menu_id = full_name_sub_menu.id
-              fullname_answer.save
-
-              return response
-            else
-              if (params[:text].last == "*")
-                main_seen_status.name = false
-                main_seen_status.save
-                fullname_answer.delete
-
-                response  = "CON Name can not be blank: \n\n"
-                response += "Press any key to go to name input"
-                return response
-              end
-
-              if main_user_log.name.blank?
-                main_user_log.name = params[:text].split("*").last
-                main_user_log.save
-              end
-            end
-
-            return response
-
-          end
-        else
-          response  = "CON Dependant Menu. Select action \n";
-
-          count = 1
-          main_sub_menus = menu.main_sub_menus.collect{|msm|msm.name}
-          main_sub_menus.each do |name|
-            response += "#{count}. #{name} \n"
-            count += 1
-          end
-          render response and return
-        end
-
-        reponse = "CON Unknown option selected. Press any key to continue"
-        return reponse
-=end
       end
 
     end
