@@ -336,7 +336,7 @@ class UssdController < ApplicationController
           end
 
           main_seen_status.dependant = true
-          main_seen_status
+          main_seen_status.save
           
           dependant_menu = DependantMenu.where(["menu_number =?", last_response]).last
           user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
