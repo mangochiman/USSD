@@ -323,7 +323,12 @@ class UssdController < ApplicationController
         if dependant_menu_asked
           user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
           dependent_menu = user_dependant_menu.dependant_menu
-          raise dependent_menu.inspect
+          
+          if dependent_menu.name.match(/NEW DEPENDANT/i)
+            response  = "CON Registration: \n Please enter your full name\n"
+            return response
+          end
+          
         end
 
         if !dependant_menu_asked
