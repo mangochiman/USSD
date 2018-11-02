@@ -443,7 +443,11 @@ class UssdController < ApplicationController
           new_dependant.district = main_user_log.district
           new_dependant.save
 
-          latest_user_menu.delete unless latest_user_menu.blank?
+          main_user_menus = MainUserMenu.where(["user_id =?", session_id])
+          main_user_menus.each do |user_menu|
+            user_menu.delete
+          end
+          
           main_seen_status.delete unless main_seen_status.blank?
           main_user_log.delete unless main_user_log.blank?
           fullname_answer.delete unless fullname_answer.blank?
