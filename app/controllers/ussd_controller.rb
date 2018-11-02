@@ -340,7 +340,7 @@ class UssdController < ApplicationController
                   main_seen_status.save
                   fullname_answer.delete
 
-                  response  = "CON Name can not be blank: \n\n"
+                  response  = "CON Name can not be blank: \n"
                   response += "Press any key to go to name input"
                   return response
                 end
