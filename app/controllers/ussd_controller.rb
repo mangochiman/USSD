@@ -320,6 +320,11 @@ class UssdController < ApplicationController
         #view_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, view_dependant_sub_menu.id]).last
         #remove_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, remove_dependant_sub_menu.id]).last
         #MainSubMenu
+        if dependant_menu_asked
+          user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
+          dependent_menu = user_dependant_menu.dependant_menu
+          raise dependent_menu.inspect
+        end
 
         if !dependant_menu_asked
           response  = "CON Dependant Menu. Select action \n"
@@ -330,17 +335,19 @@ class UssdController < ApplicationController
             count += 1
           end
 
-          dependant_menu = DependantMenu.where(["dependant_menu_id =?", last_response]).last
+          main_seen_status.dependant = true
+          main_seen_status
+          
+          dependant_menu = DependantMenu.where(["dependent_menu_id =?", last_response])
+          user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
+
           unless dependant_menu.blank?
             user_dependant_menu = UserDependantMenu.new
             user_dependant_menu.user_id = session_id
             user_dependant_menu.dependant_menu_id = dependant_menu.dependant_menu_id
             user_dependant_menu.save
-
-            main_seen_status.dependant = true
-            main_seen_status
           end
-          
+
           return response
         end
 
