@@ -287,9 +287,9 @@ class UssdController < ApplicationController
 
     unless latest_user_menu.blank?
       menu = latest_user_menu.main_menu
-      full_name_sub_menu = MainSubMenu.find_by_name("Full name")
-      gender_sub_menu = MainSubMenu.find_by_name("gender")
-      current_district_sub_menu = MainSubMenu.find_by_name("District")
+      full_name_sub_menu = SubMenu.find_by_name("Full name")
+      gender_sub_menu = SubMenu.find_by_name("gender")
+      current_district_sub_menu = SubMenu.find_by_name("District")
       
       new_dependant_sub_menu = MainSubMenu.find_by_name("New dependant")
       view_dependant_sub_menu = MainSubMenu.find_by_name("View dependants")
@@ -314,13 +314,10 @@ class UssdController < ApplicationController
       end
 
       if menu.name.match(/DEPENDANT/i)
-        fullname_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
-        gender_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
-        current_district_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
-        #new_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, new_dependant_sub_menu.id]).last
-        #view_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, view_dependant_sub_menu.id]).last
-        #remove_dependant_answer = MainUserMenu.where(["user_id =? AND sub_menu_id =?", session_id, remove_dependant_sub_menu.id]).last
-        #MainSubMenu
+        fullname_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
+        gender_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
+        current_district_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
+
         if dependant_menu_asked
           user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
           dependent_menu = user_dependant_menu.dependant_menu
