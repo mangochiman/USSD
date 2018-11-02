@@ -443,6 +443,13 @@ class UssdController < ApplicationController
           new_dependant.district = main_user_log.district
           new_dependant.save
 
+          latest_user_menu.delete unless latest_user_menu.blank?
+          main_seen_status.delete unless main_seen_status.blank?
+          main_user_log.delete unless main_user_log.blank?
+          fullname_answer.delete unless fullname_answer.blank?
+          gender_answer.delete unless gender_answer.blank?
+          current_district_answer.delete unless current_district_answer.blank?
+
           response  = "CON We have successfully registered the dependant with the following details.\n\n";
           response += "Name: #{main_user_log.name}\n"
           response += "Gender: #{main_user_log.gender}\n"
