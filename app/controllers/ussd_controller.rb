@@ -390,7 +390,7 @@ class UssdController < ApplicationController
                 main_seen_status.save
                 gender_answer.delete
 
-                response  = "CON Invalid gender selected: \n\n"
+                response  = "CON Invalid gender selected: \n"
                 response += "Press any key to go to gender menu"
                 return response
               end
@@ -422,7 +422,7 @@ class UssdController < ApplicationController
                 main_seen_status.save
                 current_district_answer.delete
 
-                response  = "CON District can not be blank: \n\n"
+                response  = "CON District can not be blank: \n"
                 response += "Press any key to go to district input"
                 return response
               end
@@ -443,7 +443,7 @@ class UssdController < ApplicationController
           new_dependant.district = main_user_log.district
           new_dependant.save
 
-          response  = "CON We have successfully registered the dependant with the following details.\n";
+          response  = "CON We have successfully registered the dependant with the following details.\n\n";
           response += "Name: #{main_user_log.name}\n"
           response += "Gender: #{main_user_log.gender}\n"
           response += "Current district: #{main_user_log.district}\n\n"
