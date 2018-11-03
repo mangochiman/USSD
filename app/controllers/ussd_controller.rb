@@ -303,6 +303,7 @@ class UssdController < ApplicationController
       gender_asked = (main_seen_status.gender == true)
       district_asked = (main_seen_status.district == true)
       dependant_menu_asked = (main_seen_status.dependant == true)
+      new_dependant_menu_asked = (main_seen_status.new_dependant == true)
       
       if menu.name.match(/EXIT/i)
         response = "END Sesssion terminated"
@@ -321,37 +322,122 @@ class UssdController < ApplicationController
           
           if dependent_menu.name.match(/NEW DEPENDANT/i)
 
-            if main_user_log.name.blank?
-              if fullname_answer.blank? && !fullname_asked
-                response  = "CON Dependant Registration: \n Please enter dependant's name\n"
-                main_seen_status.name = true
+          end
+   
+        end
+
+        if !dependant_menu_asked
+          response  = "CON Dependant Menu. Select action \n"
+          count = 1
+          main_sub_menus = menu.main_sub_menus.collect{|msm|msm.name}
+          main_sub_menus.each do |name|
+            response += "#{count}. #{name} \n"
+            count += 1
+          end
+
+          dependant_menu = DependantMenu.where(["menu_number =?", last_response]).last
+          user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
+
+          unless dependant_menu.blank?
+            main_seen_status.dependant = true
+            main_seen_status.save
+          
+            user_dependant_menu = UserDependantMenu.new
+            user_dependant_menu.user_id = session_id
+            user_dependant_menu.dependant_menu_id = dependant_menu.dependant_menu_id
+            user_dependant_menu.save
+          end
+
+          return response
+        end
+
+        dependent_menu = MainMenu.find_by_name("Dependants")
+        new_dependant_sub_menu_id = MainSubMenu.find_by_name("New dependant").main_sub_menu_id
+        remove_dependant_sub_menu_id = MainSubMenu.find_by_name("Remove dependants").main_sub_menu_id
+        view_dependant_sub_menu_id = MainSubMenu.find_by_name("View dependants").main_sub_menu_id
+
+        user_dependant_sub_menu = UserDependantSubMenu.where(["user_id =?", session_id])
+        
+        new_dependent_sub_menu = UserDependantSubMenu.where(["user_id =? AND dependant_menu_id =? AND
+          dependant_menu_sub_id =?", session_id, dependent_menu.main_menu_id, new_dependant_sub_menu_id])
+
+        remove_dependent_sub_menu = UserDependantSubMenu.where(["user_id =? AND dependant_menu_id =? AND
+          dependant_menu_sub_id =?", session_id, dependent_menu.main_menu_id, remove_dependant_sub_menu_id])
+
+        view_dependent_sub_menu = UserDependantSubMenu.where(["user_id =? AND dependant_menu_id =? AND
+          dependant_menu_sub_id =?", session_id, dependent_menu.main_menu_id, view_dependant_sub_menu_id])
+
+        if user_dependant_sub_menu.blank?
+          dependant_sub_menu = dependent_menu.main_sub_menus.where(["sub_menu_number =?", last_response])
+
+          unless dependant_sub_menu.blank?
+            if dependant_sub_menu.name.match(/New dependant/i)
+              new_dependent_sub_menu = UserDependantSubMenu.new
+              new_dependent_sub_menu.user_id = session_id
+              new_dependent_sub_menu.dependant_menu_id = dependent_menu.main_menu_id
+              new_dependent_sub_menu.dependant_menu_sub_id = new_dependant_sub_menu_id
+              new_dependent_sub_menu.save
+              #main_seen_status.new_dependant = true
+              #main_seen_status.save
+            end if new_dependent_sub_menu.blank?
+
+            if dependant_sub_menu.name.match(/Remove dependants/i)
+              remove_dependent_sub_menu = UserDependantSubMenu.new
+              remove_dependent_sub_menu.user_id = session_id
+              remove_dependent_sub_menu.dependant_menu_id = dependent_menu.main_menu_id
+              remove_dependent_sub_menu.dependant_menu_sub_id = remove_dependant_sub_menu_id
+              remove_dependent_sub_menu.save
+              #main_seen_status.remove_dependant = true
+              #main_seen_status.save
+            end if remove_dependent_sub_menu.blank?
+
+            if dependant_sub_menu.name.match(/View dependants/i)
+              view_dependent_sub_menu = UserDependantSubMenu.new
+              view_dependent_sub_menu.user_id = session_id
+              view_dependent_sub_menu.dependant_menu_id = dependent_menu.main_menu_id
+              view_dependent_sub_menu.dependant_menu_sub_id = view_dependant_sub_menu_id
+              view_dependent_sub_menu.save
+              #main_seen_status.view_dependant = true
+              #main_seen_status.save
+            end if view_dependent_sub_menu.blank?
+          end
+        end
+        
+        user_dependant_sub_menu = UserDependantSubMenu.where(["user_id =?", session_id])
+        
+        unless user_dependant_sub_menu.blank?
+
+          ######## code insert
+
+          if main_user_log.name.blank?
+            if fullname_answer.blank? && !fullname_asked
+              response  = "CON Dependant Registration: \n Please enter dependant's name\n"
+              main_seen_status.name = true
+              main_seen_status.save
+
+              fullname_answer = MainUserMenu.new
+              fullname_answer.user_id = session_id
+              fullname_answer.main_menu_id = menu.main_menu_id
+              fullname_answer.main_sub_menu_id = full_name_sub_menu.id
+              fullname_answer.save
+
+              return response
+            else
+              if (params[:text].last == "*")
+                main_seen_status.name = false
                 main_seen_status.save
+                fullname_answer.delete
 
-                fullname_answer = MainUserMenu.new
-                fullname_answer.user_id = session_id
-                fullname_answer.main_menu_id = menu.main_menu_id
-                fullname_answer.main_sub_menu_id = full_name_sub_menu.id
-                fullname_answer.save
-
+                response  = "CON Name can not be blank: \n"
+                response += "Press any key to go to name input"
                 return response
-              else
-                if (params[:text].last == "*")
-                  main_seen_status.name = false
-                  main_seen_status.save
-                  fullname_answer.delete
+              end
 
-                  response  = "CON Name can not be blank: \n"
-                  response += "Press any key to go to name input"
-                  return response
-                end
-                
-                if main_user_log.name.blank?
-                  main_user_log.name = params[:text].split("*").last
-                  main_user_log.save
-                end
+              if main_user_log.name.blank?
+                main_user_log.name = params[:text].split("*").last
+                main_user_log.save
               end
             end
-
           end
 
           if main_user_log.gender.blank?
@@ -447,7 +533,7 @@ class UssdController < ApplicationController
           main_user_menus.each do |user_menu|
             user_menu.delete
           end
-          
+
           main_seen_status.delete unless main_seen_status.blank?
           main_user_log.delete unless main_user_log.blank?
           fullname_answer.delete unless fullname_answer.blank?
@@ -462,32 +548,11 @@ class UssdController < ApplicationController
           response += "Type any key to go to main menu: \n"
 
           return response
-          
-        end
 
-        if !dependant_menu_asked
-          response  = "CON Dependant Menu. Select action \n"
-          count = 1
-          main_sub_menus = menu.main_sub_menus.collect{|msm|msm.name}
-          main_sub_menus.each do |name|
-            response += "#{count}. #{name} \n"
-            count += 1
-          end
+          ###### code insert end
 
-          dependant_menu = DependantMenu.where(["menu_number =?", last_response]).last
-          user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
 
-          unless dependant_menu.blank?
-            main_seen_status.dependant = true
-            main_seen_status.save
-          
-            user_dependant_menu = UserDependantMenu.new
-            user_dependant_menu.user_id = session_id
-            user_dependant_menu.dependant_menu_id = dependant_menu.dependant_menu_id
-            user_dependant_menu.save
-          end
 
-          return response
         end
 
       end
