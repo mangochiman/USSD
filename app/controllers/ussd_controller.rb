@@ -368,7 +368,7 @@ class UssdController < ApplicationController
           dependant_menu_sub_id =?", session_id, dependent_menu.main_menu_id, view_dependant_sub_menu_id])
 
         if user_dependant_sub_menu.blank?
-          dependant_sub_menu = dependent_menu.main_sub_menus.where(["sub_menu_number =?", last_response])
+          dependant_sub_menu = dependent_menu.main_sub_menus.where(["sub_menu_number =?", last_response]).last
 
           unless dependant_sub_menu.blank?
             if dependant_sub_menu.name.match(/New dependant/i)
