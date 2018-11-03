@@ -377,9 +377,10 @@ class UssdController < ApplicationController
               new_dependent_sub_menu.dependant_menu_id = dependent_menu.main_menu_id
               new_dependent_sub_menu.dependant_menu_sub_id = new_dependant_sub_menu_id
               new_dependent_sub_menu.save
+              raise "New dependant"
               #main_seen_status.new_dependant = true
               #main_seen_status.save
-            end if new_dependent_sub_menu.blank?
+            end #if new_dependent_sub_menu.blank?
 
             if dependant_sub_menu.name.match(/Remove dependants/i)
               remove_dependent_sub_menu = UserDependantSubMenu.new
@@ -387,9 +388,10 @@ class UssdController < ApplicationController
               remove_dependent_sub_menu.dependant_menu_id = dependent_menu.main_menu_id
               remove_dependent_sub_menu.dependant_menu_sub_id = remove_dependant_sub_menu_id
               remove_dependent_sub_menu.save
+              raise "Remove dependant"
               #main_seen_status.remove_dependant = true
               #main_seen_status.save
-            end if remove_dependent_sub_menu.blank?
+            end #if remove_dependent_sub_menu.blank?
 
             if dependant_sub_menu.name.match(/View dependants/i)
               view_dependent_sub_menu = UserDependantSubMenu.new
@@ -397,9 +399,10 @@ class UssdController < ApplicationController
               view_dependent_sub_menu.dependant_menu_id = dependent_menu.main_menu_id
               view_dependent_sub_menu.dependant_menu_sub_id = view_dependant_sub_menu_id
               view_dependent_sub_menu.save
+              raise "view dependants"
               #main_seen_status.view_dependant = true
               #main_seen_status.save
-            end if view_dependent_sub_menu.blank?
+            end #if view_dependent_sub_menu.blank?
           end
         end
         
