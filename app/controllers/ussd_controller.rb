@@ -316,15 +316,6 @@ class UssdController < ApplicationController
         gender_answer = MainUserMenu.where(["user_id =? AND main_sub_menu_id =?", session_id, gender_sub_menu.id]).last
         current_district_answer = MainUserMenu.where(["user_id =? AND main_sub_menu_id =?", session_id, current_district_sub_menu.id]).last
 
-        if dependant_menu_asked
-          user_dependant_menu = UserDependantMenu.where(["user_id =?", session_id]).last
-          dependent_menu = user_dependant_menu.dependant_menu
-          
-          if dependent_menu.name.match(/NEW DEPENDANT/i)
-
-          end
-   
-        end
 
         if !dependant_menu_asked
           response  = "CON Dependant Menu. Select action \n"
@@ -549,6 +540,7 @@ class UssdController < ApplicationController
             return response
           end
         else
+          raise latest_user_menu.inspect
           main_seen_status.dependant == false
           main_seen_status.save
           response  = "CON Invalid option selected. Press any key to go to dependant's menu.\n"
