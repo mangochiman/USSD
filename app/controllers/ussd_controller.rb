@@ -539,7 +539,7 @@ class UssdController < ApplicationController
             gender_answer.delete unless gender_answer.blank?
             current_district_answer.delete unless current_district_answer.blank?
 
-            response  = "CON We have successfully registered the dependant with the following details.\n\n";
+            response  = "CON We have successfully registered the dependant with the following details.\n\n"
             response += "Name: #{main_user_log.name}\n"
             response += "Gender: #{main_user_log.gender}\n"
             response += "Current district: #{main_user_log.district}\n\n"
@@ -548,6 +548,9 @@ class UssdController < ApplicationController
 
             return response
           end
+        else
+          response  = "CON Invalid option selected. Press any key to go back.\n"
+          return response
         end
       end
 
