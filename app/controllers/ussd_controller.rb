@@ -557,10 +557,10 @@ class UssdController < ApplicationController
           end
           
           unless dependants.blank?
-            response  = "CON Remove dependants. Select dependant \n"
+            response  = "CON View dependants(#{dependants.count}) \n"
             count = 1
             dependants.each do |dependant|
-              response += "#{count}. #{dependants.name}(#{dependants.gender.first}) \n"
+              response += "#{count}. #{dependant.name} \n"
               count += 1
             end
             return response
