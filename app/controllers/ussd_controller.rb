@@ -543,7 +543,11 @@ class UssdController < ApplicationController
           #main_seen_status.save
 
           main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
-          main_seen_status.delete
+          main_seen_status.dependant = 0
+          main_seen_status.save
+
+          #main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
+          #main_seen_status.delete
 
           raise main_seen_status.inspect
           response  = "CON Invalid option selected. Press any key to go to dependant's menu.\n"
