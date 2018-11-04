@@ -585,6 +585,72 @@ class UssdController < ApplicationController
             return response
           end
         end
+
+        if user_dependant_sub_menu.main_sub_menu.name.match(/Remove dependants/i)
+          member = Member.find_by_phone_number(phone_number)
+          dependants = member.dependants
+          remove_dependant = (main_seen_status.remove_dependant == true)
+          
+          if dependants.blank?
+            response  = "CON You have not added dependants yet.\n"
+            response += "Press any key to go to main menu \n"
+            reset_session(session_id)
+            return response
+          end
+
+          if remove_dependant
+            dependant = dependants[last_response.to_i - 1]
+            dependant.delete
+
+            response  = "CON Dependant deleted successfully.\n"
+            response += "Press any key to go to main menu \n"
+            reset_session(session_id)
+            return response
+          end
+
+          unless dependants.blank?
+            response  = "CON Select depandant to delete \n"
+            dependants.each do |dependant|
+              response += "#{dependant.name} | #{dependant.gender} | #{dependant.district} \n"
+            end
+            main_seen_status.remove_dependant = true
+            main_seen_status.save
+            response += "Press any key to go to main menu \n"
+            return response
+          end
+
+
+          if main_user_log.name.blank?
+            if fullname_answer.blank? && !fullname_asked
+              response  = "CON Dependant Registration: \n Please enter dependant's name\n"
+              main_seen_status.name = true
+              main_seen_status.save
+
+              fullname_answer = MainUserMenu.new
+              fullname_answer.user_id = session_id
+              fullname_answer.main_menu_id = menu.main_menu_id
+              fullname_answer.main_sub_menu_id = full_name_sub_menu.id
+              fullname_answer.save
+
+              return response
+            else
+              if (params[:text].last == "*")
+                main_seen_status.name = false
+                main_seen_status.save
+                fullname_answer.delete
+
+                response  = "CON Name can not be blank: \n"
+                response += "Press any key to go to name input"
+                return response
+              end
+
+              if main_user_log.name.blank?
+                main_user_log.name = params[:text].split("*").last
+                main_user_log.save
+              end
+            end
+          end
+        end
       end
 
     end
