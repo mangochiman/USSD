@@ -562,6 +562,12 @@ class UssdController < ApplicationController
             dependants.each do |dependant|
               response += "#{dependant.name} | #{dependant.gender} | #{dependant.district} \n"
             end
+
+            user_dependant_sub_menus = UserDependantSubMenu.where(["user_id =?", session_id])
+            user_dependant_sub_menus.each do |i|
+              i.delete
+            end
+            response += "Press any key to go to dependant's menu \n"
             return response
           end
         end
