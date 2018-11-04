@@ -397,7 +397,6 @@ class UssdController < ApplicationController
         user_dependant_sub_menu = UserDependantSubMenu.where(["user_id =?", session_id]).last
         
         unless user_dependant_sub_menu.blank?
-          raise user_dependant_sub_menu.main_sub_menu.name.inspect
           if user_dependant_sub_menu.main_sub_menu.name.match(/New dependant/i)
             if main_user_log.name.blank?
               if fullname_answer.blank? && !fullname_asked
@@ -543,6 +542,7 @@ class UssdController < ApplicationController
           raise latest_user_menu.inspect
           main_seen_status.dependant == false
           main_seen_status.save
+          raise main_seen_status.dependant.inspect
           response  = "CON Invalid option selected. Press any key to go to dependant's menu.\n"
           return response
         end
