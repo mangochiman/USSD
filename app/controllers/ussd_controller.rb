@@ -377,7 +377,6 @@ class UssdController < ApplicationController
               new_dependent_sub_menu.dependant_menu_id = dependent_menu.main_menu_id
               new_dependent_sub_menu.dependant_menu_sub_id = new_dependant_sub_menu_id
               new_dependent_sub_menu.save
-              raise "New dependant"
               #main_seen_status.new_dependant = true
               #main_seen_status.save
             end #if new_dependent_sub_menu.blank?
@@ -388,7 +387,6 @@ class UssdController < ApplicationController
               remove_dependent_sub_menu.dependant_menu_id = dependent_menu.main_menu_id
               remove_dependent_sub_menu.dependant_menu_sub_id = remove_dependant_sub_menu_id
               remove_dependent_sub_menu.save
-              raise "Remove dependant"
               #main_seen_status.remove_dependant = true
               #main_seen_status.save
             end #if remove_dependent_sub_menu.blank?
@@ -399,7 +397,6 @@ class UssdController < ApplicationController
               view_dependent_sub_menu.dependant_menu_id = dependent_menu.main_menu_id
               view_dependent_sub_menu.dependant_menu_sub_id = view_dependant_sub_menu_id
               view_dependent_sub_menu.save
-              raise "view dependants"
               #main_seen_status.view_dependant = true
               #main_seen_status.save
             end #if view_dependent_sub_menu.blank?
@@ -409,155 +406,149 @@ class UssdController < ApplicationController
         user_dependant_sub_menu = UserDependantSubMenu.where(["user_id =?", session_id])
         
         unless user_dependant_sub_menu.blank?
-
-          ######## code insert
-
-          if main_user_log.name.blank?
-            if fullname_answer.blank? && !fullname_asked
-              response  = "CON Dependant Registration: \n Please enter dependant's name\n"
-              main_seen_status.name = true
-              main_seen_status.save
-
-              fullname_answer = MainUserMenu.new
-              fullname_answer.user_id = session_id
-              fullname_answer.main_menu_id = menu.main_menu_id
-              fullname_answer.main_sub_menu_id = full_name_sub_menu.id
-              fullname_answer.save
-
-              return response
-            else
-              if (params[:text].last == "*")
-                main_seen_status.name = false
+          raise user_dependant_sub_menu.main_sub_menu.name.inspect
+          if user_dependant_sub_menu.main_sub_menu.name.match(/New dependant/i)
+            if main_user_log.name.blank?
+              if fullname_answer.blank? && !fullname_asked
+                response  = "CON Dependant Registration: \n Please enter dependant's name\n"
+                main_seen_status.name = true
                 main_seen_status.save
-                fullname_answer.delete
 
-                response  = "CON Name can not be blank: \n"
-                response += "Press any key to go to name input"
+                fullname_answer = MainUserMenu.new
+                fullname_answer.user_id = session_id
+                fullname_answer.main_menu_id = menu.main_menu_id
+                fullname_answer.main_sub_menu_id = full_name_sub_menu.id
+                fullname_answer.save
+
                 return response
-              end
+              else
+                if (params[:text].last == "*")
+                  main_seen_status.name = false
+                  main_seen_status.save
+                  fullname_answer.delete
 
-              if main_user_log.name.blank?
-                main_user_log.name = params[:text].split("*").last
-                main_user_log.save
+                  response  = "CON Name can not be blank: \n"
+                  response += "Press any key to go to name input"
+                  return response
+                end
+
+                if main_user_log.name.blank?
+                  main_user_log.name = params[:text].split("*").last
+                  main_user_log.save
+                end
               end
             end
-          end
 
-          if main_user_log.gender.blank?
-            if gender_answer.blank? && !gender_asked
-              response  = "CON Dependant Registration: \n  Please select dependant's gender: \n"
-              response += "1. Male \n"
-              response += "2. Female \n"
+            if main_user_log.gender.blank?
+              if gender_answer.blank? && !gender_asked
+                response  = "CON Dependant Registration: \n  Please select dependant's gender: \n"
+                response += "1. Male \n"
+                response += "2. Female \n"
 
-              main_seen_status.gender = true
-              main_seen_status.save
-
-              gender_answer = MainUserMenu.new
-              gender_answer.user_id = session_id
-              gender_answer.main_menu_id = menu.main_menu_id
-              gender_answer.main_sub_menu_id = gender_sub_menu.id
-              gender_answer.save
-
-              return response
-            else
-              gender = ""
-              gender = "Male" if params[:text].split("*").last.to_s == "1"
-              gender = "Female" if params[:text].split("*").last.to_s == "2"
-
-              if (params[:text].last == "*")
-                main_seen_status.gender = false
+                main_seen_status.gender = true
                 main_seen_status.save
-                gender_answer.delete
 
-                response  = "CON Gender can not be blank: \n\n"
-                response += "Press any key to go to gender menu"
+                gender_answer = MainUserMenu.new
+                gender_answer.user_id = session_id
+                gender_answer.main_menu_id = menu.main_menu_id
+                gender_answer.main_sub_menu_id = gender_sub_menu.id
+                gender_answer.save
+
                 return response
-              end
+              else
+                gender = ""
+                gender = "Male" if params[:text].split("*").last.to_s == "1"
+                gender = "Female" if params[:text].split("*").last.to_s == "2"
 
-              if (gender.blank?)
-                main_seen_status.gender = false
-                main_seen_status.save
-                gender_answer.delete
+                if (params[:text].last == "*")
+                  main_seen_status.gender = false
+                  main_seen_status.save
+                  gender_answer.delete
 
-                response  = "CON Invalid gender selected: \n"
-                response += "Press any key to go to gender menu"
-                return response
-              end
+                  response  = "CON Gender can not be blank: \n\n"
+                  response += "Press any key to go to gender menu"
+                  return response
+                end
 
-              if main_user_log.gender.blank?
-                main_user_log.gender = gender
-                main_user_log.save
+                if (gender.blank?)
+                  main_seen_status.gender = false
+                  main_seen_status.save
+                  gender_answer.delete
+
+                  response  = "CON Invalid gender selected: \n"
+                  response += "Press any key to go to gender menu"
+                  return response
+                end
+
+                if main_user_log.gender.blank?
+                  main_user_log.gender = gender
+                  main_user_log.save
+                end
               end
             end
-          end
 
-          if main_user_log.district.blank?
-            if current_district_answer.blank? && !district_asked
-              response  = "CON Dependant Registration: \n District dependant is currently staying: \n"
+            if main_user_log.district.blank?
+              if current_district_answer.blank? && !district_asked
+                response  = "CON Dependant Registration: \n District dependant is currently staying: \n"
 
-              main_seen_status.district = true
-              main_seen_status.save
-
-              current_district_answer = MainUserMenu.new
-              current_district_answer.user_id = session_id
-              current_district_answer.main_menu_id = menu.main_menu_id
-              current_district_answer.main_sub_menu_id = current_district_sub_menu.id
-              current_district_answer.save
-
-              return response
-            else
-              if (params[:text].last == "*")
-                main_seen_status.district = false
+                main_seen_status.district = true
                 main_seen_status.save
-                current_district_answer.delete
 
-                response  = "CON District can not be blank: \n"
-                response += "Press any key to go to district input"
+                current_district_answer = MainUserMenu.new
+                current_district_answer.user_id = session_id
+                current_district_answer.main_menu_id = menu.main_menu_id
+                current_district_answer.main_sub_menu_id = current_district_sub_menu.id
+                current_district_answer.save
+
                 return response
-              end
-              if main_user_log.district.blank?
-                main_user_log.district = params[:text].split("*").last
-                main_user_log.save
+              else
+                if (params[:text].last == "*")
+                  main_seen_status.district = false
+                  main_seen_status.save
+                  current_district_answer.delete
+
+                  response  = "CON District can not be blank: \n"
+                  response += "Press any key to go to district input"
+                  return response
+                end
+                if main_user_log.district.blank?
+                  main_user_log.district = params[:text].split("*").last
+                  main_user_log.save
+                end
               end
             end
+
+            main_user_log = MainUserLog.where(["user_id =?", session_id]).last
+            member = Member.find_by_phone_number(phone_number)
+            new_dependant = Dependant.new
+            new_dependant.member_id = member.member_id
+            #new_dependant.phone_number = phone_number
+            new_dependant.name = main_user_log.name
+            new_dependant.gender = main_user_log.gender
+            new_dependant.district = main_user_log.district
+            new_dependant.save
+
+            main_user_menus = MainUserMenu.where(["user_id =?", session_id])
+            main_user_menus.each do |user_menu|
+              user_menu.delete
+            end
+
+            main_seen_status.delete unless main_seen_status.blank?
+            main_user_log.delete unless main_user_log.blank?
+            fullname_answer.delete unless fullname_answer.blank?
+            gender_answer.delete unless gender_answer.blank?
+            current_district_answer.delete unless current_district_answer.blank?
+
+            response  = "CON We have successfully registered the dependant with the following details.\n\n";
+            response += "Name: #{main_user_log.name}\n"
+            response += "Gender: #{main_user_log.gender}\n"
+            response += "Current district: #{main_user_log.district}\n\n"
+
+            response += "Type any key to go to main menu: \n"
+
+            return response
           end
-
-          main_user_log = MainUserLog.where(["user_id =?", session_id]).last
-          member = Member.find_by_phone_number(phone_number)
-          new_dependant = Dependant.new
-          new_dependant.member_id = member.member_id
-          #new_dependant.phone_number = phone_number
-          new_dependant.name = main_user_log.name
-          new_dependant.gender = main_user_log.gender
-          new_dependant.district = main_user_log.district
-          new_dependant.save
-
-          main_user_menus = MainUserMenu.where(["user_id =?", session_id])
-          main_user_menus.each do |user_menu|
-            user_menu.delete
-          end
-
-          main_seen_status.delete unless main_seen_status.blank?
-          main_user_log.delete unless main_user_log.blank?
-          fullname_answer.delete unless fullname_answer.blank?
-          gender_answer.delete unless gender_answer.blank?
-          current_district_answer.delete unless current_district_answer.blank?
-
-          response  = "CON We have successfully registered the dependant with the following details.\n\n";
-          response += "Name: #{main_user_log.name}\n"
-          response += "Gender: #{main_user_log.gender}\n"
-          response += "Current district: #{main_user_log.district}\n\n"
-
-          response += "Type any key to go to main menu: \n"
-
-          return response
-
-          ###### code insert end
-
-
-
         end
-
       end
 
     end
