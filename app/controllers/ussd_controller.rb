@@ -558,9 +558,9 @@ class UssdController < ApplicationController
           
           unless dependants.blank?
             response  = "CON View dependants(#{dependants.count}) \n"
-            response += "Name Gender District \n"
+            response += "Name  |  Gender  |  District \n"
             dependants.each do |dependant|
-              response += "#{dependant.name} #{dependant.gender} #{dependant.district} \n"
+              response += "#{dependant.name} | #{dependant.gender} | #{dependant.district} \n"
             end
             return response
           end
