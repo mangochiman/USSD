@@ -75,6 +75,23 @@ class UssdController < ApplicationController
 
     ############# Existing member #####
     unless member.blank?
+      main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
+      unless main_seen_status.blank?
+        reset = (main_seen_status.reset == true)
+        if reset
+          response  = "CON Welcome #{member.name} to Wella Funeral Services. Select action \n";
+
+          count = 1
+          main_menu.each do |name|
+            response += "#{count}. #{name} \n"
+            count += 1
+          end
+
+          main_seen_status.reset = 0
+          main_seen_status.save
+          render :text => response and return
+        end
+      end
 
       if main_latest_user_menu.blank?
         response  = "CON Welcome #{member.name} to Wella Funeral Services. Select action \n";
@@ -563,22 +580,7 @@ class UssdController < ApplicationController
               response += "#{dependant.name} | #{dependant.gender} | #{dependant.district} \n"
             end
 
-            user_dependant_sub_menus = UserDependantSubMenu.where(["user_id =?", session_id])
-            main_user_menus =  MainUserMenu.where(["user_id =?", session_id])
-            main_user_logs = MainUserLog.where(["user_id =?", session_id])
-
-            user_dependant_sub_menus.each do |i|
-              i.delete
-            end
-
-            main_user_menus.each do |j|
-              j.delete
-            end
-
-            main_user_logs.each do |k|
-              k.delete
-            end
-            
+            reset_session(session_id)
             response += "Press any key to go to dependant's menu \n"
             return response
           end
@@ -586,6 +588,29 @@ class UssdController < ApplicationController
       end
 
     end
+
+  end
+
+  def reset_session(session_id)
+    user_dependant_sub_menus = UserDependantSubMenu.where(["user_id =?", session_id])
+    main_user_menus =  MainUserMenu.where(["user_id =?", session_id])
+    main_user_logs = MainUserLog.where(["user_id =?", session_id])
+
+    user_dependant_sub_menus.each do |i|
+      i.delete
+    end
+
+    main_user_menus.each do |j|
+      j.delete
+    end
+
+    main_user_logs.each do |k|
+      k.delete
+    end
+
+    main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
+    main_seen_status.reset = 1
+    main_seen_status.save
 
   end
 
