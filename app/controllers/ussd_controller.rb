@@ -549,7 +549,9 @@ class UssdController < ApplicationController
             return response
           end
         else
-          response  = "CON Invalid option selected. Press any key to go back.\n"
+          main_seen_status.dependant == false
+          main_seen_status.save
+          response  = "CON Invalid option selected. Press any key to go to dependant's menu.\n"
           return response
         end
       end
