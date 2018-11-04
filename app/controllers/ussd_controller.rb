@@ -548,6 +548,7 @@ class UssdController < ApplicationController
 
         #### view dependants
         if user_dependant_sub_menu.main_sub_menu.name.match(/View dependants/i)
+          member = Member.find_by_phone_number(phone_number)
           dependants = member.dependants
           
           if dependants.blank?
