@@ -403,7 +403,7 @@ class UssdController < ApplicationController
           end
         end
         
-        user_dependant_sub_menu = UserDependantSubMenu.where(["user_id =?", session_id])
+        user_dependant_sub_menu = UserDependantSubMenu.where(["user_id =?", session_id]).last
         
         unless user_dependant_sub_menu.blank?
           raise user_dependant_sub_menu.main_sub_menu.name.inspect
