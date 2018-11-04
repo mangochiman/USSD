@@ -604,7 +604,7 @@ class UssdController < ApplicationController
               main_seen_status.remove_dependant = false
               main_seen_status.save
               response  = "CON Invalid option selected.\n"
-              response += "Press any key to go to main menu \n"
+              response += "Press any key to go to dependant's menu \n"
               return response
             end
             
