@@ -600,6 +600,13 @@ class UssdController < ApplicationController
 
           if remove_dependant
             dependant = dependants[last_response.to_i - 1]
+            if (last_response.to_i <= 0 || dependant.blank?)
+              main_seen_status.remove_dependant = false
+              main_seen_status.save
+              response  = "CON Invalid option selected.\n"
+              response += "Press any key to go to main menu \n"
+            end
+            
             dependant.delete
 
             response  = "CON Dependant deleted successfully.\n"
@@ -610,12 +617,13 @@ class UssdController < ApplicationController
 
           unless dependants.blank?
             response  = "CON Select depandant to delete \n"
+            count = 1
             dependants.each do |dependant|
-              response += "#{dependant.name} | #{dependant.gender} | #{dependant.district} \n"
+              response += "#{count}. #{dependant.name} | #{dependant.gender} | #{dependant.district} \n"
+              count = count + 1
             end
             main_seen_status.remove_dependant = true
             main_seen_status.save
-            response += "Press any key to go to main menu \n"
             return response
           end
 
