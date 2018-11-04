@@ -546,11 +546,24 @@ class UssdController < ApplicationController
           return response
         end
 
-
-
         #### view dependants
         if user_dependant_sub_menu.main_sub_menu.name.match(/View dependants/i)
-
+          dependants = member.dependants
+          
+          if dependants.blank?
+            response  = "CON You have not added dependants yet.\n"
+            return response
+          end
+          
+          unless dependants.blank?
+            response  = "CON Remove dependants. Select dependant \n"
+            count = 1
+            dependants.each do |dependant|
+              response += "#{count}. #{dependants.name}(#{dependants.gender.first}) \n"
+              count += 1
+            end
+            return response
+          end
         end
       end
 
