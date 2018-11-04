@@ -545,6 +545,13 @@ class UssdController < ApplicationController
           response  = "END Invalid option selected. Session terminated.\n"
           return response
         end
+
+
+
+        #### view dependants
+        if user_dependant_sub_menu.main_sub_menu.name.match(/View dependants/i)
+
+        end
       end
 
     end
