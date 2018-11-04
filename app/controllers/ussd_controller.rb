@@ -564,9 +564,21 @@ class UssdController < ApplicationController
             end
 
             user_dependant_sub_menus = UserDependantSubMenu.where(["user_id =?", session_id])
+            main_user_menus =  MainUserMenu.where(["user_id =?", session_id])
+            main_user_logs = MainUserLog.where(["user_id =?", session_id])
+
             user_dependant_sub_menus.each do |i|
               i.delete
             end
+
+            main_user_menus.each do |j|
+              j.delete
+            end
+
+            main_user_logs.each do |k|
+              k.delete
+            end
+            
             response += "Press any key to go to dependant's menu \n"
             return response
           end
