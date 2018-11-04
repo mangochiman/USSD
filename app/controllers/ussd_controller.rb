@@ -539,7 +539,6 @@ class UssdController < ApplicationController
             return response
           end
         else
-          raise latest_user_menu.inspect
           main_seen_status.dependant == false
           main_seen_status.save
           raise main_seen_status.dependant.inspect
