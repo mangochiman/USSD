@@ -560,7 +560,7 @@ class UssdController < ApplicationController
             response  = "CON View dependants(#{dependants.count}) \n"
             response += "Name Gender District \n"
             dependants.each do |dependant|
-              response += "#{dependant.name} #{dependant.gender} #{dependant.dsitrict} \n"
+              response += "#{dependant.name} #{dependant.gender} #{dependant.district} \n"
               count += 1
             end
             return response
