@@ -561,7 +561,6 @@ class UssdController < ApplicationController
             response += "Name Gender District \n"
             dependants.each do |dependant|
               response += "#{dependant.name} #{dependant.gender} #{dependant.district} \n"
-              count += 1
             end
             return response
           end
