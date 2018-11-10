@@ -540,19 +540,19 @@ class UssdController < ApplicationController
               user_menu.delete
             end
 
-            main_seen_status.delete unless main_seen_status.blank?
-            main_user_log.delete unless main_user_log.blank?
-            fullname_answer.delete unless fullname_answer.blank?
-            gender_answer.delete unless gender_answer.blank?
-            current_district_answer.delete unless current_district_answer.blank?
+            #main_seen_status.delete unless main_seen_status.blank?
+            #main_user_log.delete unless main_user_log.blank?
+            #fullname_answer.delete unless fullname_answer.blank?
+            #gender_answer.delete unless gender_answer.blank?
+            #current_district_answer.delete unless current_district_answer.blank?
 
+            reset_session(session_id)
             response  = "CON We have successfully registered the dependant with the following details.\n\n"
             response += "Name: #{main_user_log.name}\n"
             response += "Gender: #{main_user_log.gender}\n"
             response += "Current district: #{main_user_log.district}\n\n"
-
             response += "Type any key to go to main menu: \n"
-
+            response += "Press any key to go to main menu \n"
             return response
           end
         else
@@ -569,7 +569,9 @@ class UssdController < ApplicationController
           dependants = member.dependants
           
           if dependants.blank?
+            reset_session(session_id)
             response  = "CON You have not added dependants yet.\n"
+            response += "Press any key to go to main menu \n"
             return response
           end
           
