@@ -79,7 +79,7 @@ class UssdController < ApplicationController
       unless main_seen_status.blank?
         reset = (main_seen_status.reset == true)
         if reset
-          response  = "CON Welcome #{member.name} to Wella Funeral Services. Select action \n";
+          response  = "CON Welcome #{member.name.upcase} to Wella Funeral Services. Select action \n";
 
           count = 1
           main_menu.each do |name|
@@ -338,13 +338,12 @@ class UssdController < ApplicationController
         new_member.product = user_log.product
         new_member.save
 
-        response  = "CON We have successfully registered your phone number with the following details.\n";
+        response  = "END We have successfully registered your phone number with the following details.\n";
         response += "Name: #{user_log.name}\n"
         response += "Gender: #{user_log.gender}\n"
         response += "Current district: #{user_log.district}\n"
         response += "Product: #{user_log.product}\n\n"
 
-        response += "Type # to go to main menu: \n"
         clean_db(session_id)
         
         return response
