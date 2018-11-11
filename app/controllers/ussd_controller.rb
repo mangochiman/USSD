@@ -227,7 +227,7 @@ class UssdController < ApplicationController
               seen_status.save
               gender_answer.delete
 
-              response  = "CON Gender can not be blank: \n\n"
+              response  = "CON Gender can not be blank: \n"
               response += "Press any key to go to gender menu"
               return response
             end
@@ -237,7 +237,7 @@ class UssdController < ApplicationController
               seen_status.save
               gender_answer.delete
 
-              response  = "CON Invalid gender selected: \n\n"
+              response  = "CON Invalid gender selected: \n"
               response += "Press any key to go to gender menu"
               return response
             end
@@ -269,7 +269,7 @@ class UssdController < ApplicationController
               seen_status.save
               current_district_answer.delete
 
-              response  = "CON District can not be blank: \n\n"
+              response  = "CON District can not be blank: \n"
               response += "Press any key to go to district input"
               return response
             end
@@ -282,7 +282,7 @@ class UssdController < ApplicationController
 
         if user_log.product.blank?
           if product_answer.blank? && !product_asked
-            response  = "CON Please select Funeral product: \n"
+            response  = "CON Please select funeral product: \n"
             products.each do |product|
               response += "#{product.number}. #{product.name} \n"
             end
@@ -306,7 +306,7 @@ class UssdController < ApplicationController
               seen_status.save
               product_answer.delete
 
-              response  = "CON Product can not be blank: \n\n"
+              response  = "CON Product can not be blank: \n"
               response += "Press any key to go to products menu"
               return response
             end
@@ -341,7 +341,7 @@ class UssdController < ApplicationController
         response  = "CON We have successfully registered your phone number with the following details.\n";
         response += "Name: #{user_log.name}\n"
         response += "Gender: #{user_log.gender}\n"
-        response += "Current district: #{user_log.district}\n\n"
+        response += "Current district: #{user_log.district}\n"
         response += "Product: #{user_log.product}\n\n"
 
         response += "Type # to go to main menu: \n"
