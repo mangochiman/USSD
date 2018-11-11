@@ -94,7 +94,7 @@ class UssdController < ApplicationController
       end
 
       if main_latest_user_menu.blank?
-        response  = "CON Welcome #{member.name} to Wella Funeral Services. Select action \n";
+        response  = "CON Welcome #{member.name.upcase} to Wella Funeral Services. Select action \n";
 
         count = 1
         main_menu.each do |name|
