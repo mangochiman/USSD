@@ -7,9 +7,8 @@
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
 menu = {
-  {:menu_number => 1, :menu_name => "Register"} => {1 => "Full name", 2 => "Gender", 3 => "District"},
-  {:menu_number => 2, :menu_name => "Check premiums"} => {},
-  {:menu_number => 3, :menu_name => "Exit"} => {}
+  {:menu_number => 1, :menu_name => "Register"} => {1 => "Full name", 2 => "Gender", 3 => "District", 4 => "Product"},
+  {:menu_number => 2, :menu_name => "Exit"} => {}
 }
 
 main_menu = {
@@ -60,4 +59,14 @@ dependant_menu.each do |menu|
   new_dependant_menu.menu_number = menu_number
   new_dependant_menu.name = menu_name
   new_dependant_menu.save
+end
+
+products = [[1, "Pensioners funeral plan"]]
+products.each do |product|
+  product_number = product[0]
+  product_name = product[1]
+  p = Product.new
+  p.number = product_number
+  p.name = product_name
+  p.save
 end

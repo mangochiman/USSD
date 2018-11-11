@@ -6,6 +6,7 @@ class CreateSeenStatuses < ActiveRecord::Migration
       t.boolean :gender, default: false
       t.boolean :name, default: false
       t.boolean :district, default: false
+      t.boolean :product, default: false
       t.timestamps null: false
     end
   end

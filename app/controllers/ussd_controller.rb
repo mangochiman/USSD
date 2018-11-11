@@ -136,8 +136,9 @@ class UssdController < ApplicationController
       full_name_sub_menu = SubMenu.find_by_name("Full name")
       gender_sub_menu = SubMenu.find_by_name("gender")
       current_district_sub_menu = SubMenu.find_by_name("District")
+      product_sub_menu = SubMenu.find_by_name("Product")
       seen_status = SeenStatus.where(["user_id =?", session_id]).last
-      
+      products = Product.all
 
       if seen_status.blank?
         seen_status = SeenStatus.new
@@ -151,22 +152,24 @@ class UssdController < ApplicationController
         return response
       end
 
-      if menu.name.match(/CHECK PREMIUMS/i)
-        response  = "CON Premiums: \n Below are the premiums that you can pay. \n\n\n";
-        response += "Press # to go to the main menu"
-        latest_user_menu.delete
-        return response
-      end
+      #if menu.name.match(/CHECK PREMIUMS/i)
+        #response  = "CON Premiums: \n Below are the premiums that you can pay. \n\n\n";
+        #response += "Press # to go to the main menu"
+        #latest_user_menu.delete
+        #return response
+      #end
 
       if menu.name.match(/REGISTER/i)
         fullname_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
         gender_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
         current_district_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
+        product_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, product_sub_menu.id]).last
 
         seen_status = SeenStatus.where(["user_id =?", session_id]).last
         fullname_asked = (seen_status.name == true)
         gender_asked = (seen_status.gender == true)
         district_asked = (seen_status.district == true)
+        product_asked = (seen_status.product == true)
 
         if user_log.name.blank?
           if fullname_answer.blank? && !fullname_asked
@@ -277,6 +280,54 @@ class UssdController < ApplicationController
           end
         end
 
+        if user_log.product.blank?
+          if product_answer.blank? && !product_asked
+            response  = "CON Please select Funeral product: \n"
+            products.each do |product|
+              response += "#{product.number}. #{product.name} \n"
+            end
+
+            seen_status.product = true
+            seen_status.save
+
+            product_answer = UserMenu.new
+            product_answer.user_id = session_id
+            product_answer.menu_id = menu.menu_id
+            product_answer.sub_menu_id = product_sub_menu.id
+            product_answer.save
+
+            return response
+          else
+            product_number = params[:text].split("*").last.to_s
+            selected_product = Product.find_by_number(product_number)
+
+            if (params[:text].last == "*")
+              seen_status.product = false
+              seen_status.save
+              product_answer.delete
+
+              response  = "CON Product can not be blank: \n\n"
+              response += "Press any key to go to products menu"
+              return response
+            end
+
+            if (selected_product.blank?)
+              seen_status.product = false
+              seen_status.save
+              product_answer.delete
+
+              response  = "CON Invalid product selected: \n\n"
+              response += "Press any key to go to products menu"
+              return response
+            end
+
+            if user_log.product.blank?
+              user_log.product = selected_product.name
+              user_log.save
+            end
+          end
+        end
+
         user_log = UserLog.where(["user_id =?", session_id]).last
         
         new_member = Member.new
@@ -284,12 +335,14 @@ class UssdController < ApplicationController
         new_member.name = user_log.name
         new_member.gender = user_log.gender
         new_member.district = user_log.district
+        new_member.product = user_log.product
         new_member.save
 
         response  = "CON We have successfully registered your phone number with the following details.\n";
         response += "Name: #{user_log.name}\n"
         response += "Gender: #{user_log.gender}\n"
         response += "Current district: #{user_log.district}\n\n"
+        response += "Product: #{user_log.product}\n\n"
 
         response += "Type # to go to main menu: \n"
         clean_db(session_id)
