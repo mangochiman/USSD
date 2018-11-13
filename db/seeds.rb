@@ -61,6 +61,17 @@ dependant_menu.each do |menu|
   new_dependant_menu.save
 end
 
+payment_menu = [[1, "Airtel Money"], [2, "TNM Mpamba"]]
+payment_menu.each do |menu|
+  menu_number = menu[0]
+  menu_name = menu[1]
+
+  payment_menu = PaymentMenu.new
+  payment_menu.menu_number = menu_number
+  payment_menu.name = menu_name
+  payment_menu.save
+end
+
 products = [[1, "Pensioners funeral plan"]]
 products.each do |product|
   product_number = product[0]

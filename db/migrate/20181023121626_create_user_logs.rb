@@ -7,6 +7,7 @@ class CreateUserLogs < ActiveRecord::Migration
       t.string :name
       t.string :district
       t.string :product
+      t.string :payment
       t.timestamps null: false
     end
   end
