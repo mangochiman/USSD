@@ -12,6 +12,7 @@ class CreateMainSeenStatuses < ActiveRecord::Migration
       t.boolean :remove_dependant, default: false
       t.boolean :product_type, default: false
       t.boolean :payment, default: false
+      t.boolean :payment_menu, default: false
       t.timestamps null: false
     end
   end
