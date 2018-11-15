@@ -783,7 +783,7 @@ class UssdController < ApplicationController
 
         user_payment_sub_menu = UserPaymentSubMenu.where(["user_id =?", session_id]).last
         ######################################################
-        payment_menu_answer = = MainUserMenu.where(["user_id =? AND main_sub_menu_id =?", session_id, make_payment_sub_menu_id.id]).last
+        payment_menu_answer = MainUserMenu.where(["user_id =? AND main_sub_menu_id =?", session_id, make_payment_sub_menu_id.id]).last
 
         unless user_payment_sub_menu.blank?
           if user_payment_sub_menu.main_sub_menu.name.match(/Make payment/i)
