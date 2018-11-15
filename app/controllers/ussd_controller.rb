@@ -20,7 +20,7 @@ class UssdController < ApplicationController
       end
       text = text.split("*").delete_if{|x|x== "#"}.join("*")
     end
-    
+
     member = Member.find_by_phone_number(phone_number)
     latest_user_menu = UserMenu.where(["user_id =?", session_id]).last
     main_latest_user_menu = MainUserMenu.where(["user_id =?", session_id]).last
@@ -40,7 +40,7 @@ class UssdController < ApplicationController
       main_user_log.user_id = session_id
       main_user_log.save
     end
-    
+
     if member.blank?
       if latest_user_menu.blank?
         response  = "CON Welcome #{phone_number}. Your phone number is not registered to Wella Funeral Services. Select action \n";
@@ -69,7 +69,7 @@ class UssdController < ApplicationController
         response = ussd_logic(latest_user_menu, user_log, last_response, phone_number, session_id)
         render :text => response and return if response
       end
-  
+
     end
 
 
@@ -120,7 +120,7 @@ class UssdController < ApplicationController
         response = existing_client_workflow(main_latest_user_menu, main_user_log, last_response, phone_number, session_id)
         render :text => response and return if response
       end
-      
+
     end
 
     render :text => response and return
@@ -153,10 +153,10 @@ class UssdController < ApplicationController
       end
 
       #if menu.name.match(/CHECK PREMIUMS/i)
-        #response  = "CON Premiums: \n Below are the premiums that you can pay. \n\n\n";
-        #response += "Press # to go to the main menu"
-        #latest_user_menu.delete
-        #return response
+      #response  = "CON Premiums: \n Below are the premiums that you can pay. \n\n\n";
+      #response += "Press # to go to the main menu"
+      #latest_user_menu.delete
+      #return response
       #end
 
       if menu.name.match(/REGISTER/i)
@@ -176,13 +176,13 @@ class UssdController < ApplicationController
             response  = "CON Registration: \n Please enter your full name\n"
             seen_status.name = true
             seen_status.save
-          
+
             fullname_answer = UserMenu.new
             fullname_answer.user_id = session_id
             fullname_answer.menu_id = menu.menu_id
             fullname_answer.sub_menu_id = full_name_sub_menu.id
             fullname_answer.save
-          
+
             return response
           else
             if (params[:text].last == "*")
@@ -206,7 +206,7 @@ class UssdController < ApplicationController
             response  = "CON Please select gender: \n"
             response += "1. Male \n"
             response += "2. Female \n"
-          
+
             seen_status.gender = true
             seen_status.save
 
@@ -215,13 +215,13 @@ class UssdController < ApplicationController
             gender_answer.menu_id = menu.menu_id
             gender_answer.sub_menu_id = gender_sub_menu.id
             gender_answer.save
-          
+
             return response
           else
             gender = ""
             gender = "Male" if params[:text].split("*").last.to_s == "1"
             gender = "Female" if params[:text].split("*").last.to_s == "2"
-            
+
             if (params[:text].last == "*")
               seen_status.gender = false
               seen_status.save
@@ -252,7 +252,7 @@ class UssdController < ApplicationController
         if user_log.district.blank?
           if current_district_answer.blank? && !district_asked
             response  = "CON District you are currently staying: \n"
-          
+
             seen_status.district = true
             seen_status.save
 
@@ -261,7 +261,7 @@ class UssdController < ApplicationController
             current_district_answer.menu_id = menu.menu_id
             current_district_answer.sub_menu_id = current_district_sub_menu.id
             current_district_answer.save
-          
+
             return response
           else
             if (params[:text].last == "*")
@@ -329,7 +329,7 @@ class UssdController < ApplicationController
         end
 
         user_log = UserLog.where(["user_id =?", session_id]).last
-        
+
         new_member = Member.new
         new_member.phone_number = phone_number
         new_member.name = user_log.name
@@ -345,7 +345,7 @@ class UssdController < ApplicationController
         response += "Product: #{user_log.product}\n\n"
 
         clean_db(session_id)
-        
+
         return response
       end
 
@@ -360,9 +360,9 @@ class UssdController < ApplicationController
       gender_sub_menu = SubMenu.find_by_name("gender")
       current_district_sub_menu = SubMenu.find_by_name("District")
 
-      
+
       main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
-      
+
       if main_seen_status.blank?
         main_seen_status = MainSeenStatus.new
         main_seen_status.user_id = session_id
@@ -375,7 +375,7 @@ class UssdController < ApplicationController
       dependant_menu_asked = (main_seen_status.dependant == true)
       new_dependant_menu_asked = (main_seen_status.new_dependant == true)
       payments_menu_asked = (main_seen_status.payment_menu == true)
-      
+
       if menu.name.match(/EXIT/i)
         response = "END Sesssion terminated"
         latest_user_menu.delete
@@ -403,7 +403,7 @@ class UssdController < ApplicationController
           unless dependant_menu.blank?
             main_seen_status.dependant = true
             main_seen_status.save
-          
+
             user_dependant_menu = UserDependantMenu.new
             user_dependant_menu.user_id = session_id
             user_dependant_menu.dependant_menu_id = dependant_menu.dependant_menu_id
@@ -419,7 +419,7 @@ class UssdController < ApplicationController
         view_dependant_sub_menu_id = MainSubMenu.find_by_name("View dependants").main_sub_menu_id
 
         user_dependant_sub_menu = UserDependantSubMenu.where(["user_id =?", session_id])
-        
+
         new_dependent_sub_menu = UserDependantSubMenu.where(["user_id =? AND dependant_menu_id =? AND
           dependant_menu_sub_id =?", session_id, dependent_menu.main_menu_id, new_dependant_sub_menu_id])
 
@@ -464,9 +464,9 @@ class UssdController < ApplicationController
             end #if view_dependent_sub_menu.blank?
           end
         end
-        
+
         user_dependant_sub_menu = UserDependantSubMenu.where(["user_id =?", session_id]).last
-        
+
         unless user_dependant_sub_menu.blank?
           if user_dependant_sub_menu.main_sub_menu.name.match(/New dependant/i)
             if main_user_log.name.blank?
@@ -621,14 +621,14 @@ class UssdController < ApplicationController
         if user_dependant_sub_menu.main_sub_menu.name.match(/View dependants/i)
           member = Member.find_by_phone_number(phone_number)
           dependants = member.dependants
-          
+
           if dependants.blank?
             reset_session(session_id)
             response  = "CON You have not added dependants yet.\n"
             response += "Press any key to go to main menu \n"
             return response
           end
-          
+
           unless dependants.blank?
             response  = "CON View dependants(#{dependants.count}) \n"
             response += "Name  |  Gender  |  District \n"
@@ -646,7 +646,7 @@ class UssdController < ApplicationController
           member = Member.find_by_phone_number(phone_number)
           dependants = member.dependants
           remove_dependant = (main_seen_status.remove_dependant == true)
-          
+
           if dependants.blank?
             response  = "CON You have not added dependants yet.\n"
             response += "Press any key to go to main menu \n"
@@ -663,7 +663,7 @@ class UssdController < ApplicationController
               response += "Press any key to go to dependant's menu \n"
               return response
             end
-            
+
             dependant.delete
 
             response  = "CON Dependant deleted successfully.\n"
@@ -728,150 +728,147 @@ class UssdController < ApplicationController
             count += 1
           end
 
-          payment_menu = PaymentMenu.where(["menu_number =?", last_response]).last
-
-          unless payment_menu.blank?
-            main_seen_status.payment = true
-            main_seen_status.payment_menu = true #one has to go
-            main_seen_status.save
-
-            user_payment_menu = UserPaymentMenu.new
-            user_payment_menu.user_id = session_id
-            user_payment_menu.payment_menu_id = payment_menu.payment_menu_id
-            user_payment_menu.save
-          end
+          main_seen_status.payment_menu = true #one has to go
+          main_seen_status.save
 
           return response
         end
 
-        payment_menu = MainMenu.find_by_name("Payments")
-        make_payment_sub_menu_id = MainSubMenu.find_by_name("Make payment").main_sub_menu_id
-        check_balance_sub_menu_id = MainSubMenu.find_by_name("Check balance").main_sub_menu_id
 
-        user_payment_sub_menu = UserPaymentSubMenu.where(["user_id =?", session_id])
-
-        new_dependent_sub_menu = UserDependantSubMenu.where(["user_id =? AND dependant_menu_id =? AND
-          dependant_menu_sub_id =?", session_id, dependent_menu.main_menu_id, new_dependant_sub_menu_id])
-
-        remove_dependent_sub_menu = UserDependantSubMenu.where(["user_id =? AND dependant_menu_id =? AND
-          dependant_menu_sub_id =?", session_id, dependent_menu.main_menu_id, remove_dependant_sub_menu_id])
-
-        view_dependent_sub_menu = UserDependantSubMenu.where(["user_id =? AND dependant_menu_id =? AND
-          dependant_menu_sub_id =?", session_id, dependent_menu.main_menu_id, view_dependant_sub_menu_id])
-
-        if user_payment_sub_menu.blank?
+        if payments_menu_asked
           payment_sub_menu = payment_menu.main_sub_menus.where(["sub_menu_number =?", last_response]).last
+          payment_menu = MainMenu.find_by_name("Payments")
+          make_payment_sub_menu_id = MainSubMenu.find_by_name("Make payment").main_sub_menu_id
+          check_balance_sub_menu_id = MainSubMenu.find_by_name("Check balance").main_sub_menu_id
+          user_payment_sub_menu = UserPaymentSubMenu.where(["user_id =?", session_id])
+          payment_menu_answer = MainUserMenu.where(["user_id =? AND main_sub_menu_id =?", session_id, make_payment_sub_menu_id.id]).last
 
-          unless payment_sub_menu.blank?
-            if payment_sub_menu.name.match(/Make payment/i)
+          if user_payment_sub_menu.blank?
+            if payment_sub_menu.blank?
+              response  = "CON Invalid option \n"
+              response  += "Reply with any key to go to previous menu \n"
+              main_seen_status.payment_menu = false #one has to go
+              main_seen_status.save
+              return response
+            else
               make_payment_sub_menu = UserPaymentSubMenu.new
               make_payment_sub_menu.user_id = session_id
               make_payment_sub_menu.payment_menu_id = payment_menu.main_menu_id
-              make_payment_sub_menu.payment_menu_sub_id = make_payment_sub_menu_id
-              make_payment_sub_menu.save
-            end
 
-            if payment_sub_menu.name.match(/Check balance/i)
-              check_balance_sub_menu = UserPaymentSubMenu.new
-              check_balance_sub_menu.user_id = session_id
-              check_balance_sub_menu.payment_menu_id = payment_menu.main_menu_id
-              check_balance_sub_menu.payment_menu_sub_id = check_balance_sub_menu_id
-              check_balance_sub_menu.save
-            end
+              if payment_sub_menu.name.match(/Make payment/i)
+                make_payment_sub_menu.payment_menu_sub_id = make_payment_sub_menu_id
+                make_payment_sub_menu.save
+              end
 
-          end
-        end
-
-        user_payment_sub_menu = UserPaymentSubMenu.where(["user_id =?", session_id]).last
-        ######################################################
-        payment_menu_answer = MainUserMenu.where(["user_id =? AND main_sub_menu_id =?", session_id, make_payment_sub_menu_id.id]).last
-
-        unless user_payment_sub_menu.blank?
-          if user_payment_sub_menu.main_sub_menu.name.match(/Make payment/i)
-            if main_user_log.payment_menu.blank?
-              if payment_menu_answer.blank? && !payments_menu_asked
-                response  = "CON Payment menu: \n"
-                payment_menus = PaymentMenu.all
-                payment_menus.each do |pm|
-                  response += "#{pm.menu_number}. #{pm.name}\n"
-                end
-
-                main_seen_status.payment_menu = true
-                main_seen_status.save
-
-                payment_menu_answer = MainUserMenu.new
-                payment_menu_answer.user_id = session_id
-                payment_menu_answer.main_menu_id = menu.main_menu_id
-                payment_menu_answer.main_sub_menu_id = make_payment_sub_menu_id.id
-                payment_menu_answer.save
-
-                return response
-              else
-                if (params[:text].last == "*")
-                  main_seen_status.payment_menu = false
-                  main_seen_status.save
-                  payment_menu_answer.delete
-
-                  response  = "CON Invalid option: \n"
-                  response += "Reply with # to got to payment menu"
-                  return response
-                end
-
-                if main_user_log.payment_menu.blank?
-                  main_user_log.payment_menu = params[:text].split("*").last
-                  main_user_log.save
-                end
+              if payment_sub_menu.name.match(/Check balance/i)
+                make_payment_sub_menu.payment_menu_sub_id = check_balance_sub_menu_id
+                make_payment_sub_menu.save
               end
             end
-
-            reset_session(session_id)
-            response  = "Transaction is in progress. You will be notified of an SMS\n\n"
-            response += "Reply with # to go to main menu \n"
-            return response
           end
-        else
-          main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
-          main_seen_status.payment_menu = 0
-          main_seen_status.save
-          response  = "END Invalid option selected. Session terminated.\n"
-          return response
-        end
 
-        ######################################################
+          response  = "CON Payment menu: \n"
+          payment_menus = PaymentMenu.all
+          payment_menus.each do |pm|
+            response += "#{pm.menu_number}. #{pm.name}\n"
+          end
+
+          return response
+
+        end
 
       end
 
+      user_payment_sub_menu = UserPaymentSubMenu.where(["user_id =?", session_id]).last
+      ######################################################
+      payment_menu_answer = MainUserMenu.where(["user_id =? AND main_sub_menu_id =?", session_id, make_payment_sub_menu_id.id]).last
+
+      unless user_payment_sub_menu.blank?
+        if user_payment_sub_menu.main_sub_menu.name.match(/Make payment/i)
+          if main_user_log.payment_menu.blank?
+            if payment_menu_answer.blank? && !payments_menu_asked
+              response  = "CON Payment menu: \n"
+              payment_menus = PaymentMenu.all
+              payment_menus.each do |pm|
+                response += "#{pm.menu_number}. #{pm.name}\n"
+              end
+
+              main_seen_status.payment_menu = true
+              main_seen_status.save
+
+              payment_menu_answer = MainUserMenu.new
+              payment_menu_answer.user_id = session_id
+              payment_menu_answer.main_menu_id = menu.main_menu_id
+              payment_menu_answer.main_sub_menu_id = make_payment_sub_menu_id.id
+              payment_menu_answer.save
+
+              return response
+            else
+              if (params[:text].last == "*")
+                main_seen_status.payment_menu = false
+                main_seen_status.save
+                payment_menu_answer.delete
+
+                response  = "CON Invalid option: \n"
+                response += "Reply with # to got to payment menu"
+                return response
+              end
+
+              if main_user_log.payment_menu.blank?
+                main_user_log.payment_menu = params[:text].split("*").last
+                main_user_log.save
+              end
+            end
+          end
+
+          reset_session(session_id)
+          response  = "Transaction is in progress. You will be notified of an SMS\n\n"
+          response += "Reply with # to go to main menu \n"
+          return response
+        end
+      else
+        main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
+        main_seen_status.payment_menu = 0
+        main_seen_status.save
+        response  = "END Invalid option selected. Session terminated.\n"
+        return response
+      end
+
+      ######################################################
+
     end
 
   end
 
-  def reset_session(session_id)
-    user_dependant_sub_menus = UserDependantSubMenu.where(["user_id =?", session_id])
-    main_user_menus =  MainUserMenu.where(["user_id =?", session_id])
-    main_user_logs = MainUserLog.where(["user_id =?", session_id])
-    main_seen_status = MainSeenStatus.where(["user_id =?", session_id])
+end
 
-    user_dependant_sub_menus.each do |i|
-      i.delete
-    end
+def reset_session(session_id)
+  user_dependant_sub_menus = UserDependantSubMenu.where(["user_id =?", session_id])
+  main_user_menus =  MainUserMenu.where(["user_id =?", session_id])
+  main_user_logs = MainUserLog.where(["user_id =?", session_id])
+  main_seen_status = MainSeenStatus.where(["user_id =?", session_id])
 
-    main_user_menus.each do |j|
-      j.delete
-    end
-
-    main_user_logs.each do |k|
-      k.delete
-    end
-
-    main_seen_status.each do |m|
-      m.delete
-    end
-    
-    main_seen_status = MainSeenStatus.new
-    main_seen_status.user_id = session_id
-    main_seen_status.reset = 1
-    main_seen_status.save
-
+  user_dependant_sub_menus.each do |i|
+    i.delete
   end
+
+  main_user_menus.each do |j|
+    j.delete
+  end
+
+  main_user_logs.each do |k|
+    k.delete
+  end
+
+  main_seen_status.each do |m|
+    m.delete
+  end
+
+  main_seen_status = MainSeenStatus.new
+  main_seen_status.user_id = session_id
+  main_seen_status.reset = 1
+  main_seen_status.save
+
+end
 
 end
