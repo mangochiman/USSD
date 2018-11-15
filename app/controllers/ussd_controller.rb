@@ -732,6 +732,7 @@ class UssdController < ApplicationController
 
           unless payment_menu.blank?
             main_seen_status.payment = true
+            main_seen_status.payment_menu = true #one has to go
             main_seen_status.save
 
             user_payment_menu = UserPaymentMenu.new
