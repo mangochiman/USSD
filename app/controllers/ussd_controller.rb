@@ -837,72 +837,56 @@ class UssdController < ApplicationController
               main_user_log.airtel_money = last_response
               main_user_log.save
               reset_session(session_id)
-              response  = "CON Transaction of #{last_response} is in progress. You will be notified of an SMS: \n"
+              response  = "CON Transaction of #{last_response} is in progress. You will be notified of an SMS: \n\n"
+              response+= "Reply with # for main menu"
               return response
 
             end
           end
 
-        end
-
-      end
-
-      user_payment_sub_menu = UserPaymentSubMenu.where(["user_id =?", session_id]).last
-      ######################################################
-      payment_menu_answer = MainUserMenu.where(["user_id =? AND main_sub_menu_id =?", session_id, make_payment_sub_menu_id.id]).last
-
-      unless user_payment_sub_menu.blank?
-        if user_payment_sub_menu.main_sub_menu.name.match(/Make payment/i)
-          if main_user_log.payment_menu.blank?
-            if payment_menu_answer.blank? && !payments_menu_asked
-              response  = "CON Payment menu: \n"
-              payment_menus = PaymentMenu.all
-              payment_menus.each do |pm|
-                response += "#{pm.menu_number}. #{pm.name}\n"
-              end
-
-              main_seen_status.payment_menu = true
+          if payment_option.name.match(/TNM/i)
+            if !main_seen_status.tnm
+              response  = "CON TNM Mpamba: \n"
+              response  += "Enter valid amount"
+              main_seen_status.airtel = true
               main_seen_status.save
-
-              payment_menu_answer = MainUserMenu.new
-              payment_menu_answer.user_id = session_id
-              payment_menu_answer.main_menu_id = menu.main_menu_id
-              payment_menu_answer.main_sub_menu_id = make_payment_sub_menu_id.id
-              payment_menu_answer.save
-
               return response
-            else
-              if (params[:text].last == "*")
-                main_seen_status.payment_menu = false
-                main_seen_status.save
-                payment_menu_answer.delete
+            end
 
-                response  = "CON Invalid option: \n"
-                response += "Reply with # to got to payment menu"
+            if main_user_log.tnm_mpamba.blank?
+              if (params[:text].last == "*")
+                main_seen_status.airtel = false
+                main_seen_status.save
+
+                response  = "CON Invalid amount: \n"
+                response += "Reply with # to got to previous menu"
                 return response
               end
 
-              if main_user_log.payment_menu.blank?
-                main_user_log.payment_menu = params[:text].split("*").last
-                main_user_log.save
+              number_is_valid = (last_response =~ /\A[-+]?[0-9]*\.?[0-9]+\Z/)
+              if (!number_is_valid)
+                main_seen_status.airtel = false
+                main_seen_status.save
+
+                response  = "CON Invalid amount: \n"
+                response += "Reply with # to got to previous menu"
+                return response
               end
+
+              main_user_log.airtel_money = last_response
+              main_user_log.save
+              reset_session(session_id)
+              response  = "CON Transaction of #{last_response} is in progress. You will be notified of an SMS: \n\n"
+              response+= "Reply with # for main menu"
+              return response
+
             end
           end
-
-          reset_session(session_id)
-          response  = "Transaction is in progress. You will be notified of an SMS\n\n"
-          response += "Reply with # to go to main menu \n"
-          return response
+          
         end
-      else
-        main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
-        main_seen_status.payment_menu = 0
-        main_seen_status.save
-        response  = "END Invalid option selected. Session terminated.\n"
-        return response
+
       end
 
-      ######################################################
 
     end
 
