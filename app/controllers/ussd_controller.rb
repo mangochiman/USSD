@@ -763,18 +763,60 @@ class UssdController < ApplicationController
               if payment_sub_menu.name.match(/Check balance/i)
                 make_payment_sub_menu.payment_menu_sub_id = check_balance_sub_menu_id
                 make_payment_sub_menu.save
+
+                reset_session(session_id)
+                response  = "CON Check balance\n. We will notify you through an SMS\n\n"
+                response += "Reply with # to go to main menu \n"
+                return response
               end
             end
           end
 
-          response  = "CON Payment menu: \n"
-          payment_menus = PaymentMenu.all
-          payment_menus.each do |pm|
-            response += "#{pm.menu_number}. #{pm.name}\n"
+          if main_user_log.payment_menu.blank?
+            response  = "CON Payment menu: \n"
+            payment_menus = PaymentMenu.all
+            payment_menus.each do |pm|
+              response += "#{pm.menu_number}. #{pm.name}\n"
+            end
+            main_user_log.payment_menu = params[:text].split("*").last
+            main_user_log.save
+            return response
           end
 
-          return response
+          payment_type = PaymentMenu.where(["menu_number =?", last_response])
+          user_payment_menu = UserPaymentMenu.where(["user_id =?", session_id]).last
 
+          if user_payment_menu.blank?
+            if payment_type.blank?
+              response  = "CON Invalid option \n"
+              response  += "Reply with any key to go to previous menu \n"
+
+              main_user_log.payment_menu = nil
+              main_user_log.save
+              return response
+            else
+              user_payment_menu = UserPaymentMenu.new
+              user_payment_menu.user_id = session_id
+              user_payment_menu.payment_menu_id = last_response
+              user_payment_menu.save
+            end
+          end
+
+          menu_number = user_payment_menu.payment_menu_id #take note here
+          payment_option = PaymentMenu.where(["menu_number =?", menu_number]).last
+
+          if payment_option.name.match(/Airtel/i)
+            response  = "CON Airtel money: \n"
+            response  += "Enter valid amount"
+            return response
+          end
+
+          if payment_option.name.match(/TNM/i)
+            response  = "CON TNM Mpamba: \n"
+            response  += "Enter valid amount"
+            return response
+          end
+          
         end
 
       end
