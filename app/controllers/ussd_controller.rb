@@ -840,35 +840,33 @@ class UssdController < ApplicationController
 
   end
 
-end
+  def reset_session(session_id)
+    user_dependant_sub_menus = UserDependantSubMenu.where(["user_id =?", session_id])
+    main_user_menus =  MainUserMenu.where(["user_id =?", session_id])
+    main_user_logs = MainUserLog.where(["user_id =?", session_id])
+    main_seen_status = MainSeenStatus.where(["user_id =?", session_id])
 
-def reset_session(session_id)
-  user_dependant_sub_menus = UserDependantSubMenu.where(["user_id =?", session_id])
-  main_user_menus =  MainUserMenu.where(["user_id =?", session_id])
-  main_user_logs = MainUserLog.where(["user_id =?", session_id])
-  main_seen_status = MainSeenStatus.where(["user_id =?", session_id])
+    user_dependant_sub_menus.each do |i|
+      i.delete
+    end
 
-  user_dependant_sub_menus.each do |i|
-    i.delete
+    main_user_menus.each do |j|
+      j.delete
+    end
+
+    main_user_logs.each do |k|
+      k.delete
+    end
+
+    main_seen_status.each do |m|
+      m.delete
+    end
+
+    main_seen_status = MainSeenStatus.new
+    main_seen_status.user_id = session_id
+    main_seen_status.reset = 1
+    main_seen_status.save
+
   end
-
-  main_user_menus.each do |j|
-    j.delete
-  end
-
-  main_user_logs.each do |k|
-    k.delete
-  end
-
-  main_seen_status.each do |m|
-    m.delete
-  end
-
-  main_seen_status = MainSeenStatus.new
-  main_seen_status.user_id = session_id
-  main_seen_status.reset = 1
-  main_seen_status.save
-
-end
 
 end
