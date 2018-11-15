@@ -806,17 +806,43 @@ class UssdController < ApplicationController
           payment_option = PaymentMenu.where(["menu_number =?", menu_number]).last
 
           if payment_option.name.match(/Airtel/i)
-            response  = "CON Airtel money: \n"
-            response  += "Enter valid amount"
-            return response
+            if !main_seen_status.airtel
+              response  = "CON Airtel money: \n"
+              response  += "Enter valid amount"
+              main_seen_status.airtel = true
+              main_seen_status.save
+              return response
+            end
+
+            if main_user_log.airtel_money.blank?
+              if (params[:text].last == "*")
+                main_seen_status.airtel = false
+                main_seen_status.save
+
+                response  = "CON Invalid amount: \n"
+                response += "Reply with # to got to previous menu"
+                return response
+              end
+
+              number_is_valid = (last_response =~ /\A[-+]?[0-9]*\.?[0-9]+\Z/)
+              if (!number_is_valid)
+                main_seen_status.airtel = false
+                main_seen_status.save
+
+                response  = "CON Invalid amount: \n"
+                response += "Reply with # to got to previous menu"
+                return response
+              end
+
+              main_user_log.airtel_money = last_response
+              main_user_log.save
+              reset_session(session_id)
+              response  = "CON Transaction of #{last_response} is in progress. You will be notified of an SMS: \n"
+              return response
+
+            end
           end
 
-          if payment_option.name.match(/TNM/i)
-            response  = "CON TNM Mpamba: \n"
-            response  += "Enter valid amount"
-            return response
-          end
-          
         end
 
       end
