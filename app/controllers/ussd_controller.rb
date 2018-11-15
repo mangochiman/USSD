@@ -736,8 +736,8 @@ class UssdController < ApplicationController
 
 
         if payments_menu_asked
-          payment_sub_menu = payment_menu.main_sub_menus.where(["sub_menu_number =?", last_response]).last
           payment_menu = MainMenu.find_by_name("Payments")
+          payment_sub_menu = payment_menu.main_sub_menus.where(["sub_menu_number =?", last_response]).last
           make_payment_sub_menu_id = MainSubMenu.find_by_name("Make payment").main_sub_menu_id
           check_balance_sub_menu_id = MainSubMenu.find_by_name("Check balance").main_sub_menu_id
           user_payment_sub_menu = UserPaymentSubMenu.where(["user_id =?", session_id])
