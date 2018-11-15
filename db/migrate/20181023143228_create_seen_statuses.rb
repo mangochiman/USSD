@@ -8,6 +8,7 @@ class CreateSeenStatuses < ActiveRecord::Migration
       t.boolean :district, default: false
       t.boolean :product, default: false
       t.boolean :payment, default: false
+      t.boolean :payment_menu, default: false
       t.timestamps null: false
     end
   end
