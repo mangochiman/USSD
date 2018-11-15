@@ -8,7 +8,9 @@ class CreateMainUserLogs < ActiveRecord::Migration
       t.string :district
       t.string :dependant
       t.string :payment
+      t.string :payment_menu
       t.string :airtel_money
+      t.string :tnm_mpamba
       t.timestamps null: false
     end
   end

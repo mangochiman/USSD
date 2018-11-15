@@ -359,6 +359,7 @@ class UssdController < ApplicationController
       full_name_sub_menu = SubMenu.find_by_name("Full name")
       gender_sub_menu = SubMenu.find_by_name("gender")
       current_district_sub_menu = SubMenu.find_by_name("District")
+
       
       main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
       
@@ -373,6 +374,7 @@ class UssdController < ApplicationController
       district_asked = (main_seen_status.district == true)
       dependant_menu_asked = (main_seen_status.dependant == true)
       new_dependant_menu_asked = (main_seen_status.new_dependant == true)
+      payments_menu_asked = (main_seen_status.payment_menu == true)
       
       if menu.name.match(/EXIT/i)
         response = "END Sesssion terminated"
@@ -714,6 +716,128 @@ class UssdController < ApplicationController
             end
           end
         end
+      end
+
+      if menu.name.match(/PAYMENTS/i)
+        if !payments_menu_asked
+          response  = "CON Payments Menu. Select action \n"
+          count = 1
+          payment_sub_menus = menu.main_sub_menus.collect{|msm|msm.name}
+          payment_sub_menus.each do |name|
+            response += "#{count}. #{name} \n"
+            count += 1
+          end
+
+          payment_menu = PaymentMenu.where(["menu_number =?", last_response]).last
+
+          unless payment_menu.blank?
+            main_seen_status.payment = true
+            main_seen_status.save
+
+            user_payment_menu = UserPaymentMenu.new
+            user_payment_menu.user_id = session_id
+            user_payment_menu.payment_menu_id = payment_menu.payment_menu_id
+            user_payment_menu.save
+          end
+
+          return response
+        end
+
+        payment_menu = MainMenu.find_by_name("Payments")
+        make_payment_sub_menu_id = MainSubMenu.find_by_name("Make payment").main_sub_menu_id
+        check_balance_sub_menu_id = MainSubMenu.find_by_name("Check balance").main_sub_menu_id
+
+        user_payment_sub_menu = UserPaymentSubMenu.where(["user_id =?", session_id])
+
+        new_dependent_sub_menu = UserDependantSubMenu.where(["user_id =? AND dependant_menu_id =? AND
+          dependant_menu_sub_id =?", session_id, dependent_menu.main_menu_id, new_dependant_sub_menu_id])
+
+        remove_dependent_sub_menu = UserDependantSubMenu.where(["user_id =? AND dependant_menu_id =? AND
+          dependant_menu_sub_id =?", session_id, dependent_menu.main_menu_id, remove_dependant_sub_menu_id])
+
+        view_dependent_sub_menu = UserDependantSubMenu.where(["user_id =? AND dependant_menu_id =? AND
+          dependant_menu_sub_id =?", session_id, dependent_menu.main_menu_id, view_dependant_sub_menu_id])
+
+        if user_payment_sub_menu.blank?
+          payment_sub_menu = payment_menu.main_sub_menus.where(["sub_menu_number =?", last_response]).last
+
+          unless payment_sub_menu.blank?
+            if payment_sub_menu.name.match(/Make payment/i)
+              make_payment_sub_menu = UserPaymentSubMenu.new
+              make_payment_sub_menu.user_id = session_id
+              make_payment_sub_menu.payment_menu_id = payment_menu.main_menu_id
+              make_payment_sub_menu.payment_menu_sub_id = make_payment_sub_menu_id
+              make_payment_sub_menu.save
+            end
+
+            if payment_sub_menu.name.match(/Check balance/i)
+              check_balance_sub_menu = UserPaymentSubMenu.new
+              check_balance_sub_menu.user_id = session_id
+              check_balance_sub_menu.payment_menu_id = payment_menu.main_menu_id
+              check_balance_sub_menu.payment_menu_sub_id = check_balance_sub_menu_id
+              check_balance_sub_menu.save
+            end
+
+          end
+        end
+
+        user_payment_sub_menu = UserPaymentSubMenu.where(["user_id =?", session_id]).last
+        ######################################################
+        payment_menu_answer = = MainUserMenu.where(["user_id =? AND main_sub_menu_id =?", session_id, make_payment_sub_menu_id.id]).last
+
+        unless user_payment_sub_menu.blank?
+          if user_payment_sub_menu.main_sub_menu.name.match(/Make payment/i)
+            if main_user_log.payment_menu.blank?
+              if payment_menu_answer.blank? && !payments_menu_asked
+                response  = "CON Payment menu: \n"
+                payment_menus = PaymentMenu.all
+                payment_menus.each do |pm|
+                  response += "#{pm.menu_number}. #{pm.name}\n"
+                end
+
+                main_seen_status.payment_menu = true
+                main_seen_status.save
+
+                payment_menu_answer = MainUserMenu.new
+                payment_menu_answer.user_id = session_id
+                payment_menu_answer.main_menu_id = menu.main_menu_id
+                payment_menu_answer.main_sub_menu_id = make_payment_sub_menu_id.id
+                payment_menu_answer.save
+
+                return response
+              else
+                if (params[:text].last == "*")
+                  main_seen_status.payment_menu = false
+                  main_seen_status.save
+                  payment_menu_answer.delete
+
+                  response  = "CON Invalid option: \n"
+                  response += "Reply with # to got to payment menu"
+                  return response
+                end
+
+                if main_user_log.payment_menu.blank?
+                  main_user_log.payment_menu = params[:text].split("*").last
+                  main_user_log.save
+                end
+              end
+            end
+
+            reset_session(session_id)
+            response  = "Transaction is in progress. You will be notified of an SMS\n\n"
+            response += "Reply with # to go to main menu \n"
+            return response
+          end
+        else
+          main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
+          main_seen_status.payment_menu = 0
+          main_seen_status.save
+          response  = "END Invalid option selected. Session terminated.\n"
+          return response
+        end
+
+        ######################################################
+
       end
 
     end
