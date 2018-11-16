@@ -3,6 +3,7 @@ class Member < ActiveRecord::Base
   self.primary_key = "member_id"
 
   has_many :dependants, :foreign_key => :member_id
+  has_many :claims, :foreign_key => :member_id
   
   def self.enroll_in_program(params, phone_number)
     data = params.split("*")

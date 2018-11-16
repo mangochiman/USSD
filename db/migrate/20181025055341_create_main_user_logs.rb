@@ -11,6 +11,7 @@ class CreateMainUserLogs < ActiveRecord::Migration
       t.string :payment_menu
       t.string :airtel_money
       t.string :tnm_mpamba
+      t.string :claim_description
       t.timestamps null: false
     end
   end

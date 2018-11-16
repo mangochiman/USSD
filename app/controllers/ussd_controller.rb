@@ -359,8 +359,7 @@ class UssdController < ApplicationController
       full_name_sub_menu = SubMenu.find_by_name("Full name")
       gender_sub_menu = SubMenu.find_by_name("gender")
       current_district_sub_menu = SubMenu.find_by_name("District")
-
-
+      member = Member.find_by_phone_number(phone_number)
       main_seen_status = MainSeenStatus.where(["user_id =?", session_id]).last
 
       if main_seen_status.blank?
@@ -953,18 +952,80 @@ class UssdController < ApplicationController
                                                         claims_menu.main_menu_id, cancel_claims_sub_menu_id])
 
           unless make_claim_answer.blank?
-            response  = "CON Claim Description \n"
+            if !(main_seen_status.new_claims_menu == true)
+              main_seen_status.new_claims_menu = true
+              main_seen_status.save
+
+              response  = "CON Claim Description \n"
+              return response
+            end
+
+            if (params[:text].last == "*")
+              main_seen_status.new_claims_menu = false
+              main_seen_status.save
+
+              response  = "CON Description can not be blank: \n"
+              response += "Press any key to go to previous menu"
+              return response
+            end
+
+            new_claim = Claim.new
+            new_claim.member_id = member.member_id
+            new_claim.description = last_response
+            new_claim.save
+
+            response  = "CON Message \n"
+            response += "Your claim has been made. You will hear from us soon\n\n"
+            response += "Reply with # to go to main menu"
+
+            reset_session(session_id)
             return response
           end
 
           unless view_claims_answer.blank?
-            response  = "CON Claims view \n"
+            claims = member.claims
+            response  = "CON My claims (#{claims.count}) \n"
+            response += "Date  | Description \n"
+            claims.each do |claim|
+              response += "#{claim.created_at.to_s} | #{claim.description} \n"
+            end
+
+            reset_session(session_id)
             return response
           end
 
           unless cancel_claims_answer.blank?
-            response  = "CON Claims cancel \n"
+            if !(main_seen_status.cancel_claims_menu == true)
+              claims = member.claims
+              response  = "CON Cancel claims (#{claims.count}). Select item to delete \n"
+              count = 1
+              claims.each do |claim|
+                response += "#{count}. #{claim.created_at.to_s} | #{claim.description} \n"
+                count = count + 1
+              end
+
+              main_seen_status.cancel_claims_menu = false
+              main_seen_status.save
+
+              return response
+            end
+
+            claim = claims[last_response.to_i - 1]
+
+            if (last_response.to_i <= 0 || claim.blank?)
+              main_seen_status.cancel_claims_menu = false
+              main_seen_status.save
+              response  = "CON Invalid option selected.\n"
+              response += "Reply with any key to go to previous menu \n"
+              return response
+            end
+
+            claim.delete
+            response  = "CON The selected claim has been deleted.\n\n"
+            response += "Reply with any key to go to main menu \n"
+            reset_session(session_id)
             return response
+
           end
 
         end
