@@ -15,6 +15,10 @@ class CreateMainSeenStatuses < ActiveRecord::Migration
       t.boolean :payment_menu, default: false
       t.boolean :airtel, default: false
       t.boolean :tnm, default: false
+      t.boolean :claims_menu, default: false
+      t.boolean :new_claims_menu, default: false
+      t.boolean :view_claims_menu, default: false
+      t.boolean :cancel_claims_menu, default: false
       t.timestamps null: false
     end
   end

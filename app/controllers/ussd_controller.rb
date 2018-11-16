@@ -375,6 +375,7 @@ class UssdController < ApplicationController
       dependant_menu_asked = (main_seen_status.dependant == true)
       new_dependant_menu_asked = (main_seen_status.new_dependant == true)
       payments_menu_asked = (main_seen_status.payment_menu == true)
+      claims_menu_asked = (main_seen_status.claims_menu == true)
 
       if menu.name.match(/EXIT/i)
         response = "END Sesssion terminated"
@@ -848,14 +849,14 @@ class UssdController < ApplicationController
             if !main_seen_status.tnm
               response  = "CON TNM Mpamba: \n"
               response  += "Enter valid amount"
-              main_seen_status.airtel = true
+              main_seen_status.tnm = true
               main_seen_status.save
               return response
             end
 
             if main_user_log.tnm_mpamba.blank?
               if (params[:text].last == "*")
-                main_seen_status.airtel = false
+                main_seen_status.tnm = false
                 main_seen_status.save
 
                 response  = "CON Invalid amount: \n"
@@ -865,7 +866,7 @@ class UssdController < ApplicationController
 
               number_is_valid = (last_response =~ /\A[-+]?[0-9]*\.?[0-9]+\Z/)
               if (!number_is_valid)
-                main_seen_status.airtel = false
+                main_seen_status.tnm = false
                 main_seen_status.save
 
                 response  = "CON Invalid amount: \n"
@@ -873,7 +874,7 @@ class UssdController < ApplicationController
                 return response
               end
 
-              main_user_log.airtel_money = last_response
+              main_user_log.tnm_mpamba = last_response
               main_user_log.save
               reset_session(session_id)
               response  = "CON Transaction of #{last_response} is in progress. You will be notified of an SMS: \n\n"
@@ -882,9 +883,92 @@ class UssdController < ApplicationController
 
             end
           end
-          
+
         end
 
+      end
+
+      if menu.name.match(/CLAIMS/i)
+        if !claims_menu_asked
+          response  = "CON Claims Menu. Select action \n"
+          count = 1
+          claims_sub_menus = menu.main_sub_menus.collect{|msm|msm.name}
+          claims_sub_menus.each do |name|
+            response += "#{count}. #{name} \n"
+            count += 1
+          end
+
+          main_seen_status.payment_menu = true #one has to go
+          main_seen_status.save
+
+          return response
+        end
+
+        ######################################
+        if claims_menu_asked
+          claims_menu = MainMenu.find_by_name("Claims")
+          claim_sub_menu = claims_menu.main_sub_menus.where(["sub_menu_number =?", last_response]).last
+          make_claim_sub_menu_id = MainSubMenu.find_by_name("Make claim").main_sub_menu_id
+          cancel_claims_sub_menu_id = MainSubMenu.find_by_name("Cancel claims").main_sub_menu_id
+          view_claims_sub_menu_id = MainSubMenu.find_by_name("View Claims").main_sub_menu_id
+          user_claims_sub_menu = UserClaimsSubMenu.where(["user_id =?", session_id])
+
+          if user_claims_sub_menu.blank?
+            if claim_sub_menu.blank?
+              response  = "CON Invalid option \n"
+              response  += "Reply with any key to go to previous menu \n"
+              main_seen_status.claims_menu = false #one has to go
+              main_seen_status.save
+              return response
+            else
+              user_claims_sub_menu = UserClaimsSubMenu.new
+              user_claims_sub_menu.user_id = session_id
+              user_claims_sub_menu.claim_menu_id = claims_menu.main_menu_id
+
+              if payment_sub_menu.name.match(/Make claim/i)
+                user_claims_sub_menu.claim_menu_sub_id = make_claim_sub_menu_id
+                user_claims_sub_menu.save
+              end
+
+              if payment_sub_menu.name.match(/Cancel claims/i)
+                user_claims_sub_menu.claim_menu_sub_id = cancel_claims_sub_menu_id
+                user_claims_sub_menu.save
+              end
+
+              if payment_sub_menu.name.match(/View Claims/i)
+                user_claims_sub_menu.claim_menu_sub_id = view_claims_sub_menu_id
+                user_claims_sub_menu.save
+              end
+
+            end
+          end
+
+          make_claim_answer = UserClaimsSubMenu.where(["user_id =? AND claim_menu_id =? AND claim_menu_sub_id =?", session_id,
+                                                       claims_menu.main_menu_id, make_claim_sub_menu_id])
+
+          view_claims_answer = UserClaimsSubMenu.where(["user_id =? AND claim_menu_id =? AND claim_menu_sub_id =?", session_id,
+                                                       claims_menu.main_menu_id, view_claims_sub_menu_id])
+
+          cancel_claims_answer = UserClaimsSubMenu.where(["user_id =? AND claim_menu_id =? AND claim_menu_sub_id =?", session_id,
+                                                        claims_menu.main_menu_id, cancel_claims_sub_menu_id])
+
+          unless make_claim_answer.blank?
+            response  = "CON Claim Description \n"
+            return response
+          end
+
+          unless view_claims_answer.blank?
+            response  = "CON Claims view \n"
+            return response
+          end
+
+          unless cancel_claims_answer.blank?
+            response  = "CON Claims cancel \n"
+            return response
+          end
+
+        end
+        ######################################
       end
 
 
