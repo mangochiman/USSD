@@ -7,6 +7,7 @@ class CreateMainSeenStatuses < ActiveRecord::Migration
       t.boolean :name, default: false
       t.boolean :district, default: false
       t.boolean :dependant, default: false
+      t.boolean :product, default: false
       t.boolean :new_dependant, default: false
       t.boolean :view_dependant, default: false
       t.boolean :remove_dependant, default: false
