@@ -975,13 +975,15 @@ class UssdController < ApplicationController
               new_claim.description = last_response
               new_claim.save
 
+              main_seen_status.claim_description = last_response
+              main_seen_status.save
+
               response  = "CON Message \n"
               response += "Your claim has been made. You will hear from us soon\n\n"
               response += "Reply with # to go to main menu"
 
               reset_session(session_id)
               return response
-
             end
           end
 
