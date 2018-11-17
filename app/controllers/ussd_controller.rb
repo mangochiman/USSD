@@ -924,17 +924,17 @@ class UssdController < ApplicationController
               user_claims_sub_menu.user_id = session_id
               user_claims_sub_menu.claim_menu_id = claims_menu.main_menu_id
 
-              if payment_sub_menu.name.match(/Make claim/i)
+              if claim_sub_menu.name.match(/Make claim/i)
                 user_claims_sub_menu.claim_menu_sub_id = make_claim_sub_menu_id
                 user_claims_sub_menu.save
               end
 
-              if payment_sub_menu.name.match(/Cancel claims/i)
+              if claim_sub_menu.name.match(/Cancel claims/i)
                 user_claims_sub_menu.claim_menu_sub_id = cancel_claims_sub_menu_id
                 user_claims_sub_menu.save
               end
 
-              if payment_sub_menu.name.match(/View Claims/i)
+              if claim_sub_menu.name.match(/View Claims/i)
                 user_claims_sub_menu.claim_menu_sub_id = view_claims_sub_menu_id
                 user_claims_sub_menu.save
               end
