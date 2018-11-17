@@ -1001,8 +1001,8 @@ class UssdController < ApplicationController
           end
 
           unless cancel_claims_answer.blank?
+            claims = member.claims
             if !(main_seen_status.cancel_claims_menu == true)
-              claims = member.claims
               response  = "CON Cancel claims (#{claims.count}). Select item to delete \n"
               count = 1
               claims.each do |claim|
