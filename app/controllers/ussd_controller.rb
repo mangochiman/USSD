@@ -906,7 +906,7 @@ class UssdController < ApplicationController
         ######################################
         if claims_menu_asked
           claims_menu = MainMenu.find_by_name("Claims")
-          claim_sub_menu = claims_menu.main_sub_menus.where(["sub_menu_number =?", last_response]).last
+          claim_sub_menu = claims_menu.main_sub_menus.where(["sub_menu_number =?", params[:text].last]).last
           make_claim_sub_menu_id = MainSubMenu.find_by_name("Make claim").main_sub_menu_id
           cancel_claims_sub_menu_id = MainSubMenu.find_by_name("Cancel claims").main_sub_menu_id
           view_claims_sub_menu_id = MainSubMenu.find_by_name("View Claims").main_sub_menu_id
