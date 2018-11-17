@@ -1001,6 +1001,14 @@ class UssdController < ApplicationController
 
           unless cancel_claims_answer.blank?
             claims = member.claims
+            if claims.blank?
+              reset_session(session_id)
+              response  = "You have not made any claims yet.\n"
+              response += "Reply with # to go to main menu \n"
+
+              return response
+            end
+
             if !(main_seen_status.cancel_claims_menu == true)
               response  = "CON Cancel claims (#{claims.count}). Select item to delete \n"
               count = 1
@@ -1026,8 +1034,8 @@ class UssdController < ApplicationController
             end
 
             claim.delete
-            response  = "CON The selected claim has been deleted.\n\n"
-            response += "Reply with any key to go to main menu \n"
+            response  = "CON The selected claim has been deleted.\n"
+            response += "Reply with # to go to main menu"
             reset_session(session_id)
             return response
 
