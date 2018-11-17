@@ -605,8 +605,7 @@ class UssdController < ApplicationController
             response += "Name: #{main_user_log.name}\n"
             response += "Gender: #{main_user_log.gender}\n"
             response += "Current district: #{main_user_log.district}\n\n"
-            response += "Type any key to go to main menu: \n"
-            response += "Press any key to go to main menu \n"
+            response += "Reply with # to go to main menu \n"
             return response
           end
         else
