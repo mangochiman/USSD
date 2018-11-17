@@ -1003,7 +1003,7 @@ class UssdController < ApplicationController
             claims = member.claims
             if claims.blank?
               reset_session(session_id)
-              response  = "You have not made any claims yet.\n"
+              response  = "CON You have not made any claims yet.\n"
               response += "Reply with # to go to main menu \n"
 
               return response
