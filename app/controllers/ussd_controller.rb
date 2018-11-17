@@ -1048,6 +1048,9 @@ class UssdController < ApplicationController
     main_user_menus =  MainUserMenu.where(["user_id =?", session_id])
     main_user_logs = MainUserLog.where(["user_id =?", session_id])
     main_seen_status = MainSeenStatus.where(["user_id =?", session_id])
+    user_claims_sub_menus  = UserClaimsSubMenu.where(["user_id =?", session_id])
+    user_payment_sub_menus = UserPaymentSubMenu.where(["user_id =?", session_id])
+
 
     user_dependant_sub_menus.each do |i|
       i.delete
@@ -1063,6 +1066,14 @@ class UssdController < ApplicationController
 
     main_seen_status.each do |m|
       m.delete
+    end
+
+    user_claims_sub_menus.each do |n|
+      n.delete
+    end
+
+    user_payment_sub_menus.each do |p|
+      p.delete
     end
 
     main_seen_status = MainSeenStatus.new
