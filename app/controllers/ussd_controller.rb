@@ -1016,9 +1016,9 @@ class UssdController < ApplicationController
               return response
             end
 
-            claim = claims[last_response.to_i - 1]
+            claim = claims[params[:text].last.to_i - 1]
 
-            if (last_response.to_i <= 0 || claim.blank?)
+            if (params[:text].last.to_i <= 0 || claim.blank?)
               main_seen_status.cancel_claims_menu = false
               main_seen_status.save
               response  = "CON Invalid option selected.\n"
