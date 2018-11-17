@@ -1006,11 +1006,11 @@ class UssdController < ApplicationController
               response  = "CON Cancel claims (#{claims.count}). Select item to delete \n"
               count = 1
               claims.each do |claim|
-                response += "#{count}. #{claim.created_at.to_s} | #{claim.description} \n"
+                response += "#{count}. #{claim.created_at.to_date.strftime("%Y-%b-%d")} | #{claim.description} \n"
                 count = count + 1
               end
 
-              main_seen_status.cancel_claims_menu = false
+              main_seen_status.cancel_claims_menu = true
               main_seen_status.save
 
               return response
