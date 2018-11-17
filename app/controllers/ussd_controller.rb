@@ -897,7 +897,7 @@ class UssdController < ApplicationController
             count += 1
           end
 
-          main_seen_status.payment_menu = true #one has to go
+          main_seen_status.claims_menu = true
           main_seen_status.save
 
           return response
@@ -946,40 +946,43 @@ class UssdController < ApplicationController
                                                        claims_menu.main_menu_id, make_claim_sub_menu_id])
 
           view_claims_answer = UserClaimsSubMenu.where(["user_id =? AND claim_menu_id =? AND claim_menu_sub_id =?", session_id,
-                                                       claims_menu.main_menu_id, view_claims_sub_menu_id])
+                                                        claims_menu.main_menu_id, view_claims_sub_menu_id])
 
           cancel_claims_answer = UserClaimsSubMenu.where(["user_id =? AND claim_menu_id =? AND claim_menu_sub_id =?", session_id,
-                                                        claims_menu.main_menu_id, cancel_claims_sub_menu_id])
+                                                          claims_menu.main_menu_id, cancel_claims_sub_menu_id])
 
           unless make_claim_answer.blank?
-            if !(main_seen_status.new_claims_menu == true)
-              main_seen_status.new_claims_menu = true
-              main_seen_status.save
+            if main_seen_status.claim_description.blank?
+              if !(main_seen_status.new_claims_menu == true)
+                main_seen_status.new_claims_menu = true
+                main_seen_status.save
 
-              response  = "CON Claim Description \n"
+                response  = "CON Claim Description \n"
+                return response
+              end
+
+              if (params[:text].last == "*")
+                main_seen_status.new_claims_menu = false
+                main_seen_status.save
+
+                response  = "CON Description can not be blank: \n"
+                response += "Press any key to go to previous menu"
+                return response
+              end
+
+              new_claim = Claim.new
+              new_claim.member_id = member.member_id
+              new_claim.description = last_response
+              new_claim.save
+
+              response  = "CON Message \n"
+              response += "Your claim has been made. You will hear from us soon\n\n"
+              response += "Reply with # to go to main menu"
+
+              reset_session(session_id)
               return response
+
             end
-
-            if (params[:text].last == "*")
-              main_seen_status.new_claims_menu = false
-              main_seen_status.save
-
-              response  = "CON Description can not be blank: \n"
-              response += "Press any key to go to previous menu"
-              return response
-            end
-
-            new_claim = Claim.new
-            new_claim.member_id = member.member_id
-            new_claim.description = last_response
-            new_claim.save
-
-            response  = "CON Message \n"
-            response += "Your claim has been made. You will hear from us soon\n\n"
-            response += "Reply with # to go to main menu"
-
-            reset_session(session_id)
-            return response
           end
 
           unless view_claims_answer.blank?
