@@ -952,7 +952,7 @@ class UssdController < ApplicationController
                                                           claims_menu.main_menu_id, cancel_claims_sub_menu_id])
 
           unless make_claim_answer.blank?
-            if main_seen_status.claim_description.blank?
+            if main_user_log.claim_description.blank?
               if !(main_seen_status.new_claims_menu == true)
                 main_seen_status.new_claims_menu = true
                 main_seen_status.save
@@ -975,8 +975,8 @@ class UssdController < ApplicationController
               new_claim.description = last_response
               new_claim.save
 
-              main_seen_status.claim_description = last_response
-              main_seen_status.save
+              main_user_log.claim_description = last_response
+              main_user_log.save
 
               response  = "CON Message \n"
               response += "Your claim has been made. You will hear from us soon\n\n"
