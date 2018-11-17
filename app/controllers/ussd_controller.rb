@@ -992,8 +992,9 @@ class UssdController < ApplicationController
             response  = "CON My claims (#{claims.count}) \n"
             response += "Date  | Description \n"
             claims.each do |claim|
-              response += "#{claim.created_at.to_s} | #{claim.description} \n"
+              response += "#{claim.created_at.to_date.strftime("%Y-%b-%d")} | #{claim.description} \n"
             end
+            response += "Reply with # to go to main menu"
 
             reset_session(session_id)
             return response
