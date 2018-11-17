@@ -102,7 +102,7 @@ class UssdController < ApplicationController
           count += 1
         end
 
-        main_menu_response = MainMenu.where(["menu_number =?", last_response]).last
+        main_menu_response = MainMenu.where(["menu_number =?", params[:text].last]).last
 
         unless main_menu_response.blank?
           main_user_menu = MainUserMenu.new
