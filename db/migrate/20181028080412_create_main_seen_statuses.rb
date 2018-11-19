@@ -4,6 +4,19 @@ class CreateMainSeenStatuses < ActiveRecord::Migration
       t.string :user_id
       t.boolean :phone_number, default: false
       t.boolean :gender, default: false
+      t.boolean :title, default: false
+      t.boolean :initials, default: false
+      t.boolean :year_of_birth, default: false
+      t.boolean :month_of_birth, default: false
+      t.boolean :day_of_birth, default: false
+      t.boolean :identification_type, default: false
+      t.boolean :identification_number, default: false
+      t.boolean :country_of_birth, default: false
+      t.boolean :nationality, default: false
+      t.boolean :first_name, default: false
+      t.boolean :surname, default: false
+      t.boolean :previous_surname, default: false
+      t.boolean :marital_status, default: false
       t.boolean :name, default: false
       t.boolean :district, default: false
       t.boolean :dependant, default: false

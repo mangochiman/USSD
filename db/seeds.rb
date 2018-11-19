@@ -81,3 +81,50 @@ products.each do |product|
   p.name = product_name
   p.save
 end
+
+titles = [["Mr", 1], ["Miss", 2], ["Mrs", 3], ["Dr", 4], ["Prof", 5]]
+titles.each do |title|
+  name = title[0]
+  menu_number = title[1]
+
+  title_menu = TitleMenu.new
+  title_menu.name = name
+  title_menu.menu_number = menu_number
+  title_menu.save
+
+end
+
+marital_statuses = [
+    ["Married", 1],
+    ["Single", 2],
+    ["Divorced", 3],
+    ["Widowed", 4]
+]
+
+marital_statuses.each do |row|
+  name = row[0]
+  menu_number = row[1]
+
+  marital_status = MaritalStatus.new
+  marital_status.name = name
+  marital_status.menu_number = menu_number
+  marital_status.save
+end
+
+identification_types = [
+    ["National ID", 1],
+    ["Passport", 2],
+    ["Driver's licence", 3],
+    ["Driver's ID", 4],
+    ["Voter's card", 5]
+]
+
+identification_types.each do |row|
+  name = row[0]
+  menu_number = row[1]
+
+  identification_type_menu = IdentificationTypeMenu.new
+  identification_type_menu.name = name
+  identification_type_menu.menu_number = menu_number
+  identification_type_menu.save
+end
