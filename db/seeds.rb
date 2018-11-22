@@ -6,16 +6,34 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
+
 menu = {
-  {:menu_number => 1, :menu_name => "Register"} => {1 => "Full name", 2 => "Gender", 3 => "District", 4 => "Product"},
-  {:menu_number => 2, :menu_name => "Exit"} => {}
+    {:menu_number => 1, :menu_name => "Register"} => {
+        1 => "First name",
+        2 => "Surname",
+        3 => "Previous surname",
+        4 => "Initials",
+        5 => "Gender",
+        6 => "Title",
+        7 => "year of birth",
+        8 => "month of birth",
+        9 => "day of birth",
+        10 => "Date of birth",
+        11 => "Identification type",
+        12 => "Identification number",
+        13 => "Marital status",
+        14 => "Country of birth",
+        15 => "Nationality",
+        16 => "District",
+        17 => "Product"},
+    {:menu_number => 2, :menu_name => "Exit"} => {}
 }
 
 main_menu = {
-  {:menu_number => 1, :menu_name => "Dependants"} => {1 => "New dependant", 2 => "Remove dependants", 3 => "View dependants"},
-  {:menu_number => 2, :menu_name => "Claims"} => {1 => "Make claim", 2 => "Cancel claims", 3 => "View Claims"},
-  {:menu_number => 3, :menu_name => "Payments"} => {1 => "Make payment", 2 => "Check balance"},
-  {:menu_number => 4, :menu_name => "Exit"} => {}
+    {:menu_number => 1, :menu_name => "Dependants"} => {1 => "New dependant", 2 => "Remove dependants", 3 => "View dependants"},
+    {:menu_number => 2, :menu_name => "Claims"} => {1 => "Make claim", 2 => "Cancel claims", 3 => "View Claims"},
+    {:menu_number => 3, :menu_name => "Payments"} => {1 => "Make payment", 2 => "Check balance"},
+    {:menu_number => 4, :menu_name => "Exit"} => {}
 }
 
 menu.each do |key, values|

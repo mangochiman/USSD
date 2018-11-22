@@ -133,9 +133,21 @@ class UssdController < ApplicationController
   def ussd_logic(latest_user_menu, user_log, last_response, phone_number, session_id)
     unless latest_user_menu.blank?
       menu = latest_user_menu.menu
-      full_name_sub_menu = SubMenu.find_by_name("Full name")
-      gender_sub_menu = SubMenu.find_by_name("gender")
-      current_district_sub_menu = SubMenu.find_by_name("District")
+
+      first_name_sub_menu = SubMenu.find_by_name("First name")
+      surname_sub_menu = SubMenu.find_by_name("Surname")
+      previous_surname_sub_menu = SubMenu.find_by_name("Previous surname")
+      initials_sub_menu = SubMenu.find_by_name("Initials")
+      gender_sub_menu = SubMenu.find_by_name("Gender")
+      title_sub_menu = SubMenu.find_by_name("Title")
+      year_of_birth_sub_menu = SubMenu.find_by_name("Year of birth")
+      month_of_birth_sub_menu = SubMenu.find_by_name("Month of birth")
+      day_of_birth_sub_menu = SubMenu.find_by_name("Day of birth")
+      identification_type_sub_menu = SubMenu.find_by_name("Identification type")
+      identification_number_sub_menu = SubMenu.find_by_name("Identification number")
+      marital_status_sub_menu = SubMenu.find_by_name("Marital status")
+      nationality_sub_menu = SubMenu.find_by_name("Nationality")
+      country_of_birth_sub_menu = SubMenu.find_by_name("Country of birth")
       product_sub_menu = SubMenu.find_by_name("Product")
       seen_status = SeenStatus.where(["user_id =?", session_id]).last
       products = Product.all
@@ -152,50 +164,141 @@ class UssdController < ApplicationController
         return response
       end
 
-      #if menu.name.match(/CHECK PREMIUMS/i)
-      #response  = "CON Premiums: \n Below are the premiums that you can pay. \n\n\n";
-      #response += "Press # to go to the main menu"
-      #latest_user_menu.delete
-      #return response
-      #end
-
       if menu.name.match(/REGISTER/i)
-        fullname_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, full_name_sub_menu.id]).last
+        first_name_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, first_name_sub_menu.id]).last
+        surname_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, surname_sub_menu.id]).last
+        previous_surname_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, previous_surname_sub_menu.id]).last
+        initials_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, initials_sub_menu.id]).last
         gender_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, gender_sub_menu.id]).last
-        current_district_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, current_district_sub_menu.id]).last
+        title_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, title_sub_menu.id]).last
+        year_of_birth_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, year_of_birth_sub_menu.id]).last
+        month_of_birth_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, month_of_birth_sub_menu.id]).last
+        day_of_birth_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, day_of_birth_sub_menu.id]).last
+        identification_type_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, identification_type_sub_menu.id]).last
+        identification_number_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, identification_number_sub_menu.id]).last
+        marital_status_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, marital_status_sub_menu.id]).last
+        nationality_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, nationality_sub_menu.id]).last
+        country_of_birth_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, country_of_birth_sub_menu.id]).last
         product_answer = UserMenu.where(["user_id =? AND sub_menu_id =?", session_id, product_sub_menu.id]).last
 
         seen_status = SeenStatus.where(["user_id =?", session_id]).last
-        fullname_asked = (seen_status.name == true)
+
+        first_name_asked = (seen_status.first_name == true)
+        surname_asked = (seen_status.surname == true)
+        previous_surname_asked = (seen_status.previous_surname == true)
+        initials_asked = (seen_status.initials == true)
         gender_asked = (seen_status.gender == true)
-        district_asked = (seen_status.district == true)
+        title_asked = (seen_status.title == true)
+        year_of_birth_asked = (seen_status.year_of_birth == true)
+        month_of_birth_asked = (seen_status.month_of_birth == true)
+        day_of_birth_asked = (seen_status.day_of_birth == true)
+        identification_type_asked = (seen_status.identification_type == true)
+        identification_number_asked = (seen_status.identification_number == true)
+        marital_status_asked = (seen_status.marital_status == true)
+        nationality_asked = (seen_status.nationality == true)
+        country_of_birth_asked = (seen_status.country_of_birth == true)
         product_asked = (seen_status.product == true)
 
-        if user_log.name.blank?
-          if fullname_answer.blank? && !fullname_asked
-            response  = "CON Registration: \n Please enter your full name\n"
-            seen_status.name = true
+
+        if user_log.first_name.blank?
+          if first_name_answer.blank? && !first_name_asked
+            response  = "CON Registration: \n Please enter your first name\n"
+            seen_status.first_name = true
             seen_status.save
 
-            fullname_answer = UserMenu.new
-            fullname_answer.user_id = session_id
-            fullname_answer.menu_id = menu.menu_id
-            fullname_answer.sub_menu_id = full_name_sub_menu.id
-            fullname_answer.save
+            first_name_answer = UserMenu.new
+            first_name_answer.user_id = session_id
+            first_name_answer.menu_id = menu.menu_id
+            first_name_answer.sub_menu_id = first_name_sub_menu.id
+            first_name_answer.save
 
             return response
           else
             if (params[:text].last == "*")
-              seen_status.name = false
+              seen_status.first_name = false
               seen_status.save
-              fullname_answer.delete
+              first_name_answer.delete
 
-              response  = "CON Name can not be blank: \n\n"
-              response += "Press any key to go to name input"
+              response  = "CON First name can not be blank: \n\n"
+              response += "Press any key to go to first name input"
               return response
             end
-            if user_log.name.blank?
-              user_log.name = params[:text].split("*").last
+
+            if user_log.first_name.blank?
+              user_log.first_name = params[:text].split("*").last
+              user_log.save
+            end
+          end
+        end
+
+        if user_log.surname.blank?
+          if surname_answer.blank? && !surname_asked
+            response  = "CON Registration: \n Please enter your surname\n"
+            seen_status.surname = true
+            seen_status.save
+
+            surname_answer = UserMenu.new
+            surname_answer.user_id = session_id
+            surname_answer.menu_id = menu.menu_id
+            surname_answer.sub_menu_id = surname_sub_menu.id
+            surname_answer.save
+
+            return response
+          else
+            if (params[:text].last == "*")
+              seen_status.surname = false
+              seen_status.save
+              surname_answer.delete
+
+              response  = "CON Surname can not be blank: \n\n"
+              response += "Press any key to go to surname input"
+              return response
+            end
+
+            if user_log.surname.blank?
+              user_log.surname = params[:text].split("*").last
+              user_log.save
+            end
+          end
+        end
+
+        if user_log.previous_surname.blank?
+          if previous_surname_answer.blank? && !previous_surname_asked
+            response  = "CON Registration: \n Please enter your previous surname\n"
+            seen_status.previous_surname = true
+            seen_status.save
+
+            previous_surname_answer = UserMenu.new
+            previous_surname_answer.user_id = session_id
+            previous_surname_answer.menu_id = menu.menu_id
+            previous_surname_answer.sub_menu_id = previous_surname_sub_menu.id
+            previous_surname_answer.save
+
+            return response
+          else
+            if (params[:text].last != "*")
+              user_log.previous_surname = params[:text].split("*").last
+              user_log.save
+            end
+          end
+        end
+
+        if user_log.initials.blank?
+          if initials_answer.blank? && !initials_asked
+            response  = "CON Registration: \n Please enter your initials\n"
+            seen_status.initials = true
+            seen_status.save
+
+            initials_answer = UserMenu.new
+            initials_answer.user_id = session_id
+            initials_answer.menu_id = menu.menu_id
+            initials_answer.sub_menu_id = initials_sub_menu.id
+            initials_answer.save
+
+            return response
+          else
+            if (params[:text].last != "*")
+              user_log.initials = params[:text].split("*").last
               user_log.save
             end
           end
@@ -249,36 +352,310 @@ class UssdController < ApplicationController
           end
         end
 
-        if user_log.district.blank?
-          if current_district_answer.blank? && !district_asked
-            response  = "CON District you are currently staying: \n"
 
-            seen_status.district = true
+        if user_log.title.blank?
+          if title_answer.blank? && !title_asked
+            response  = "CON Registration: \n Please select title\n"
+            titles = TitleMenu.all
+            titles.each do |title|
+              response += "#{title.menu_number}. #{title.name} \n"
+            end
+
+            seen_status.title = true
             seen_status.save
 
-            current_district_answer = UserMenu.new
-            current_district_answer.user_id = session_id
-            current_district_answer.menu_id = menu.menu_id
-            current_district_answer.sub_menu_id = current_district_sub_menu.id
-            current_district_answer.save
+            title_answer = UserMenu.new
+            title_answer.user_id = session_id
+            title_answer.menu_id = menu.menu_id
+            title_answer.sub_menu_id = title_sub_menu.id
+            title_answer.save
 
             return response
           else
-            if (params[:text].last == "*")
-              seen_status.district = false
+            selected_title = TitleMenu.where(["menu_number =?", params[:text].last])
+            if (selected_title.blank?)
+              seen_status.title = false
               seen_status.save
-              current_district_answer.delete
+              title_answer.delete
 
-              response  = "CON District can not be blank: \n"
-              response += "Press any key to go to district input"
+              response  = "CON Invalid selection: \n\n"
+              response += "Press any key to go to title input"
               return response
             end
-            if user_log.district.blank?
-              user_log.district = params[:text].split("*").last
+            if user_log.title.blank?
+              user_log.title = params[:text].split("*").last
               user_log.save
             end
           end
         end
+
+
+        if user_log.year_of_birth.blank?
+          if year_of_birth_answer.blank? && !year_of_birth_asked
+            response  = "CON Registration: \n Please enter birth year\n"
+            seen_status.year_of_birth = true
+            seen_status.save
+
+            year_of_birth_answer = UserMenu.new
+            year_of_birth_answer.user_id = session_id
+            year_of_birth_answer.menu_id = menu.menu_id
+            year_of_birth_answer.sub_menu_id = year_of_birth_sub_menu.id
+            year_of_birth_answer.save
+
+            return response
+          else
+            if (params[:text].last == "*")
+              seen_status.year_of_birth = false
+              seen_status.save
+              year_of_birth_answer.delete
+
+              response  = "CON Birth year can not be blank: \n\n"
+              response += "Press any key to go to birth year input"
+              return response
+            end
+            if user_log.year_of_birth.blank?
+              user_log.year_of_birth = params[:text].split("*").last
+              user_log.save
+            end
+          end
+        end
+
+        available_months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"]
+        if user_log.month_of_birth.blank?
+          if month_of_birth_answer.blank? && !month_of_birth_asked
+            response  = "CON Registration: \n Please select month\n"
+            count = 1
+            available_months.each do |name|
+              response += "#{count}. #{name} \n"
+              count = count + 1
+            end
+            seen_status.month_of_birth = true
+            seen_status.save
+
+            month_of_birth_answer = UserMenu.new
+            month_of_birth_answer.user_id = session_id
+            month_of_birth_answer.menu_id = menu.menu_id
+            month_of_birth_answer.sub_menu_id = month_of_birth_sub_menu.id
+            month_of_birth_answer.save
+
+            return response
+          else
+            selected_month_index = params[:text].last.to_i - 1
+            if selected_month_index < 0
+              seen_status.month_of_birth = false
+              seen_status.save
+              month_of_birth_answer.delete
+
+              response  = "CON Invalid selection: \n"
+              response += "Press any key to go to month input"
+              return response
+            end
+
+            selected_month = available_months[selected_month_index]
+            if (selected_month.blank?)
+              seen_status.month_of_birth = false
+              seen_status.save
+              month_of_birth_answer.delete
+
+              response  = "CON Invalid selection: \n"
+              response += "Press any key to go to month input"
+              return response
+            end
+
+            if user_log.month_of_birth.blank?
+              user_log.month_of_birth = params[:text].split("*").last
+              user_log.save
+            end
+          end
+        end
+
+        if user_log.day_of_birth.blank?
+          if day_of_birth_answer.blank? && !day_of_birth_asked
+            response  = "CON Registration: \n Please enter day of birth\n"
+            seen_status.day_of_birth = true
+            seen_status.save
+
+            day_of_birth_answer = UserMenu.new
+            day_of_birth_answer.user_id = session_id
+            day_of_birth_answer.menu_id = menu.menu_id
+            day_of_birth_answer.sub_menu_id = day_of_birth_sub_menu.id
+            day_of_birth_answer.save
+
+            return response
+          else
+            day_of_birth = params[:text].last
+            birth_date = (user_log.year_of_birth.to_s + " " + user_log.month_of_birth.to_s + " " + day_of_birth.to_s).to_date rescue nil
+            if (birth_date.blank?)
+              seen_status.day_of_birth = false
+              seen_status.save
+              day_of_birth_answer.delete
+
+              response  = "CON Invalid date: \n\n"
+              response += "Press any key to go to day input"
+              return response
+            end
+            if user_log.day_of_birth.blank?
+              user_log.day_of_birth = params[:text].split("*").last
+              user_log.save
+            end
+          end
+        end
+
+        if user_log.identification_type.blank?
+          if identification_type_answer.blank? && !identification_type_asked
+            response  = "CON Registration: \n Please select identification type\n"
+            identification_types = IdentificationTypeMenu.all
+            identification_types.each do |identification_type|
+              response += "#{identification_type.menu_number}. #{identification_type.name} \n"
+            end
+            seen_status.identification_type = true
+            seen_status.save
+
+            identification_type_answer = UserMenu.new
+            identification_type_answer.user_id = session_id
+            identification_type_answer.menu_id = menu.menu_id
+            identification_type_answer.sub_menu_id = identification_type_sub_menu.id
+            identification_type_answer.save
+
+            return response
+          else
+            selected_identification_type = IdentificationTypeMenu.where(["menu_number =?", params[:text].last])
+            if (selected_identification_type.blank?)
+              seen_status.identification_type = false
+              seen_status.save
+              identification_type_answer.delete
+
+              response  = "CON Invalid selection: \n\n"
+              response += "Press any key to go to identification type input"
+              return response.+
+            end
+            if user_log.identification_type.blank?
+              user_log.identification_type = params[:text].split("*").last
+              user_log.save
+            end
+          end
+        end
+
+        if user_log.identification_number.blank?
+          if identification_number_answer.blank? && !identification_number_asked
+            response  = "CON Registration: \n Please select identification type\n"
+            seen_status.identification_type = true
+            seen_status.save
+
+            identification_number_answer = UserMenu.new
+            identification_number_answer.user_id = session_id
+            identification_number_answer.menu_id = menu.menu_id
+            identification_number_answer.sub_menu_id = identification_number_sub_menu.id
+            identification_number_answer.save
+
+            return response
+          else
+            if (params[:text].last == "*")
+              seen_status.identification_type = false
+              seen_status.save
+              identification_type_answer.delete
+
+              response  = "CON Identification number can not be blank: \n\n"
+              response += "Press any key to go to identification number input"
+              return response
+            end
+            if user_log.identification_number.blank?
+              user_log.identification_number = params[:text].split("*").last
+              user_log.save
+            end
+          end
+        end
+
+        if user_log.marital_status.blank?
+          if marital_status_answer.blank? && !marital_status_asked
+            response  = "CON Registration: \n Please select marital status\n"
+            seen_status.marital_status = true
+            seen_status.save
+
+            marital_status_answer = UserMenu.new
+            marital_status_answer.user_id = session_id
+            marital_status_answer.menu_id = menu.menu_id
+            marital_status_answer.sub_menu_id = marital_status_sub_menu.id
+            marital_status_answer.save
+
+            return response
+          else
+            if (params[:text].last == "*")
+              seen_status.marital_status = false
+              seen_status.save
+              marital_status_answer.delete
+
+              response  = "CON Invalid selection: \n\n"
+              response += "Press any key to go to marital status"
+              return response
+            end
+            if user_log.marital_status.blank?
+              user_log.marital_status = params[:text].split("*").last
+              user_log.save
+            end
+          end
+        end
+
+        if user_log.country_of_birth.blank?
+          if country_of_birth_answer.blank? && !country_of_birth_asked
+            response  = "CON Registration: \n Country of birth\n"
+            seen_status.country_of_birth = true
+            seen_status.save
+
+            country_of_birth_answer = UserMenu.new
+            country_of_birth_answer.user_id = session_id
+            country_of_birth_answer.menu_id = menu.menu_id
+            country_of_birth_answer.sub_menu_id = country_of_birth_sub_menu.id
+            country_of_birth_answer.save
+
+            return response
+          else
+            if (params[:text].last == "*")
+              seen_status.country_of_birth = false
+              seen_status.save
+              country_of_birth_answer.delete
+
+              response  = "CON Country of birth can not be blank: \n"
+              response += "Press any key to go to marital status"
+              return response
+            end
+            if user_log.marital_status.blank?
+              user_log.marital_status = params[:text].split("*").last
+              user_log.save
+            end
+          end
+        end
+
+        if user_log.nationality.blank?
+          if nationality_answer.blank? && !nationality_asked
+            response  = "CON Registration: \n Nationality\n"
+            seen_status.nationality = true
+            seen_status.save
+
+            nationality_answer = UserMenu.new
+            nationality_answer.user_id = session_id
+            nationality_answer.menu_id = menu.menu_id
+            nationality_answer.sub_menu_id = nationality_sub_menu.id
+            nationality_answer.save
+
+            return response
+          else
+            if (params[:text].last == "*")
+              seen_status.nationality = false
+              seen_status.save
+              nationality_answer.delete
+
+              response  = "CON Nationality can not be blank: \n"
+              response += "Press any key to go to nationality"
+              return response
+            end
+            if user_log.nationality.blank?
+              user_log.nationality = params[:text].split("*").last
+              user_log.save
+            end
+          end
+        end
+
 
         if user_log.product.blank?
           if product_answer.blank? && !product_asked
@@ -332,16 +709,30 @@ class UssdController < ApplicationController
 
         new_member = Member.new
         new_member.phone_number = phone_number
-        new_member.name = user_log.name
         new_member.gender = user_log.gender
-        new_member.district = user_log.district
+        new_member.title = user_log.title
+        new_member.initials = user_log.initials
+        new_member.first_name = user_log.first_name
+        new_member.surname = user_log.surname
+        new_member.previous_surname = user_log.previous_surname
+        new_member.date_of_birth = ""
+        new_member.identification_type = user_log.identification_type
+        new_member.identification_number = user_log.identification_number
+        new_member.country_of_birth = user_log.country_of_birth
+        new_member.nationality = user_log.nationality
+        new_member.marital_status = user_log.marital_status
         new_member.product = user_log.product
         new_member.save
 
-        response  = "END We have successfully registered your phone number with the following details.\n";
-        response += "Name: #{user_log.name}\n"
+        response  = "END We have successfully registered your phone number (#{phone_number})with the following details.\n";
+        response += "Name: #{user_log.first_name} #{user_log.surname}\n"
+        response += "Previous surname: #{user_log.previous_surname}\n"
         response += "Gender: #{user_log.gender}\n"
-        response += "Current district: #{user_log.district}\n"
+        response += "Title: #{user_log.title}\n"
+        response += "Identification Type: #{user_log.identification_type}\n"
+        response += "Identification Number: #{user_log.identification_number}\n"
+        response += "Date of Birth:  #{user_log.date_of_birth}\n"
+        response += "Marital status: #{user_log.marital_status}\n"
         response += "Product: #{user_log.product}\n\n"
 
         clean_db(session_id)
