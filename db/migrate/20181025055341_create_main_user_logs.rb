@@ -9,6 +9,7 @@ class CreateMainUserLogs < ActiveRecord::Migration
       t.string :year_of_birth
       t.string :month_of_birth
       t.string :day_of_birth
+      t.string :date_of_birth
       t.string :identification_type
       t.string :identification_number
       t.string :country_of_birth
