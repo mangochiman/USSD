@@ -372,7 +372,7 @@ class UssdController < ApplicationController
 
             return response
           else
-            selected_title = TitleMenu.where(["menu_number =?", params[:text].last])
+            selected_title = TitleMenu.where(["menu_number =?", params[:text].last]).last
             if (selected_title.blank?)
               seen_status.title = false
               seen_status.save
@@ -383,7 +383,7 @@ class UssdController < ApplicationController
               return response
             end
             if user_log.title.blank?
-              user_log.title = params[:text].split("*").last
+              user_log.title = selected_title.name
               user_log.save
             end
           end
@@ -463,7 +463,7 @@ class UssdController < ApplicationController
             end
 
             if user_log.month_of_birth.blank?
-              user_log.month_of_birth = params[:text].split("*").last
+              user_log.month_of_birth = selected_month
               user_log.save
             end
           end
@@ -519,7 +519,7 @@ class UssdController < ApplicationController
 
             return response
           else
-            selected_identification_type = IdentificationTypeMenu.where(["menu_number =?", params[:text].last])
+            selected_identification_type = IdentificationTypeMenu.where(["menu_number =?", params[:text].last]).last
             if (selected_identification_type.blank?)
               seen_status.identification_type = false
               seen_status.save
@@ -530,7 +530,7 @@ class UssdController < ApplicationController
               return response.+
             end
             if user_log.identification_type.blank?
-              user_log.identification_type = params[:text].split("*").last
+              user_log.identification_type = selected_identification_type.name
               user_log.save
             end
           end
@@ -569,6 +569,10 @@ class UssdController < ApplicationController
         if user_log.marital_status.blank?
           if marital_status_answer.blank? && !marital_status_asked
             response  = "CON Registration: \n Please select marital status\n"
+            marital_statuses = MaritalStatus.all
+            marital_statuses.each do |marital_status|
+              response += "#{marital_status.menu_number}. #{marital_status.name} \n"
+            end
             seen_status.marital_status = true
             seen_status.save
 
@@ -580,7 +584,8 @@ class UssdController < ApplicationController
 
             return response
           else
-            if (params[:text].last == "*")
+            selected_marital_status = MaritalStatus.where(["menu_number =?", params[:text].last]).last
+            if (selected_marital_status.blank?)
               seen_status.marital_status = false
               seen_status.save
               marital_status_answer.delete
@@ -590,15 +595,21 @@ class UssdController < ApplicationController
               return response
             end
             if user_log.marital_status.blank?
-              user_log.marital_status = params[:text].split("*").last
+              user_log.marital_status = selected_marital_status.name
               user_log.save
             end
           end
         end
 
+        country_of_birth_options = ["Malawi", "Foreign"]
         if user_log.country_of_birth.blank?
           if country_of_birth_answer.blank? && !country_of_birth_asked
             response  = "CON Registration: \n Country of birth\n"
+            count = 1
+            country_of_birth_options.each do |option|
+              response += "#{count}. #{option} \n"
+              count = count + 1
+            end
             seen_status.country_of_birth = true
             seen_status.save
 
@@ -610,25 +621,46 @@ class UssdController < ApplicationController
 
             return response
           else
-            if (params[:text].last == "*")
+
+            selected_index = params[:text].last.to_i - 1
+            if selected_index < 0
               seen_status.country_of_birth = false
               seen_status.save
               country_of_birth_answer.delete
 
-              response  = "CON Country of birth can not be blank: \n"
+              response  = "CON Invalid selection: \n"
               response += "Press any key to go to marital status"
               return response
             end
+
+            selected_option = country_of_birth_options[selected_index]
+            if (selected_option.blank?)
+              seen_status.country_of_birth = false
+              seen_status.save
+              country_of_birth_answer.delete
+
+              response  = "CON Invalid selection: \n"
+              response += "Press any key to go to marital status"
+              return response
+            end
+
+
             if user_log.marital_status.blank?
-              user_log.marital_status = params[:text].split("*").last
+              user_log.marital_status = selected_option
               user_log.save
             end
           end
         end
 
+        nationality_options = ["Malawian", "Foreign"]
         if user_log.nationality.blank?
           if nationality_answer.blank? && !nationality_asked
             response  = "CON Registration: \n Nationality\n"
+            count = 1
+            nationality_options.each do |option|
+              response += "#{count}. #{option} \n"
+              count = count + 1
+            end
             seen_status.nationality = true
             seen_status.save
 
@@ -640,17 +672,31 @@ class UssdController < ApplicationController
 
             return response
           else
-            if (params[:text].last == "*")
+
+            selected_index = params[:text].last.to_i - 1
+            if selected_index < 0
               seen_status.nationality = false
               seen_status.save
               nationality_answer.delete
 
-              response  = "CON Nationality can not be blank: \n"
+              response  = "CON Invalid selection: \n"
               response += "Press any key to go to nationality"
               return response
             end
+
+            selected_option = nationality_options[selected_index]
+            if (selected_option.blank?)
+              seen_status.nationality = false
+              seen_status.save
+              nationality_answer.delete
+
+              response  = "CON Invalid selection: \n"
+              response += "Press any key to go to nationality"
+              return response
+            end
+
             if user_log.nationality.blank?
-              user_log.nationality = params[:text].split("*").last
+              user_log.nationality = selected_option
               user_log.save
             end
           end
