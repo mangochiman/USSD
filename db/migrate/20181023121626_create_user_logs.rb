@@ -20,6 +20,7 @@ class CreateUserLogs < ActiveRecord::Migration
       t.string :name
       t.string :district
       t.string :dependant
+      t.string :product
       t.string :payment
       t.string :payment_menu
       t.string :airtel_money
